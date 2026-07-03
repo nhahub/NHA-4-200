@@ -1,0 +1,59 @@
+@model ZoneSync.Web.ViewModels.Account.CreateInvitationViewModel
+@using ZoneSync.Core.Enums
+
+@{
+    ViewData["Title"] = "Create Invitation";
+}
+
+<h1>Create Invitation</h1>
+
+@if (!string.IsNullOrWhiteSpace(Model?.CreatedToken))
+{
+    <div class="alert alert-success">
+        <strong>Invitation Created</strong>
+        <div>Token: @Model.CreatedToken</div>
+        <div>Verification Code: @Model.VerificationCode</div>
+    </div>
+}
+
+<form asp-action="CreateInvitation" method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="col-md-4">
+        <label asp-for="SentByUserId" class="form-label"></label>
+        <input asp-for="SentByUserId" class="form-control" />
+        <span asp-validation-for="SentByUserId" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="FarmId" class="form-label"></label>
+        <input asp-for="FarmId" class="form-control" />
+        <span asp-validation-for="FarmId" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-4">
+        <label asp-for="InvitedRole" class="form-label"></label>
+        <select asp-for="InvitedRole" asp-items="Html.GetEnumSelectList<FarmRoleType>()" class="form-select"></select>
+        <span asp-validation-for="InvitedRole" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="InvitedEmail" class="form-label"></label>
+        <input asp-for="InvitedEmail" class="form-control" />
+        <span asp-validation-for="InvitedEmail" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="InvitedPhone" class="form-label"></label>
+        <input asp-for="InvitedPhone" class="form-control" />
+        <span asp-validation-for="InvitedPhone" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Create</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
