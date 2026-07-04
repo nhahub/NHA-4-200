@@ -38,12 +38,9 @@ namespace ZoneSync.Service.Modules.FarmZone
             };
 
             context.Farms.Add(farm);
-            await context.SaveChangesAsync(); // save first so farm.FarmId is generated
+            await context.SaveChangesAsync(); 
 
-            // Owner gets a FarmMembership row automatically — reuses Member 1's
-            // AddFarmMembershipAsync (same method AcceptInvitationAsync calls for
-            // invited Engineers/Farmers). That method does NOT call SaveChangesAsync
-            // itself, so it's done here explicitly.
+           
             await identityService.AddFarmMembershipAsync(farm.FarmId, ownerUserId, FarmRoleType.Owner);
             await context.SaveChangesAsync();
 
@@ -74,9 +71,6 @@ namespace ZoneSync.Service.Modules.FarmZone
 
             await context.SaveChangesAsync();
 
-            // NOTE (agreed earlier): soft-deleting a Farm does NOT cascade-delete its
-            // Zones. Zones just get filtered out wherever the app queries "zones for
-            // this farm", by checking Farm.IsDeleted along the way.
         }
 
         public async Task<Core.Entities.FarmZone.Farm?> GetFarmAsync(int farmId)
@@ -85,9 +79,7 @@ namespace ZoneSync.Service.Modules.FarmZone
         }
 
         public async Task<System.Collections.Generic.List<Zone>> GetActiveZonesForFarmAsync(int farmId)
-        {
-            // Per the task doc: Farm Details must only show non-deleted zones.
-            return await context.Zones
+        {   return await context.Zones
                 .Where(z => z.FarmId == farmId && !z.IsDeleted)
                 .ToListAsync();
         }
@@ -173,9 +165,7 @@ namespace ZoneSync.Service.Modules.FarmZone
             await RecalculateFarmTotalsAsync(zone.FarmId);
             await WriteActivityLogAsync(zone.CreatedByUserId, ActivityEntityType.Zone, zone.ZoneId, ActivityActionType.Delete);
 
-            // NOTE (agreed earlier): ZoneUser rows for this zone are NOT deleted here.
-            // They're left in place and simply filtered out anywhere the app queries
-            // "who's assigned to this zone" by checking Zone.IsDeleted first.
+            
         }
 
         // ---------------------------------------------------------------
@@ -216,10 +206,7 @@ namespace ZoneSync.Service.Modules.FarmZone
                 throw new InvalidOperationException(
                     "This user must be assigned to the zone before they can be made supervisor.");
 
-            // Confirms the candidate holds the Engineer role on this zone's farm,
-            // via Member 1's FarmMembership table. Uses the FarmRoleType enum
-            // directly — not a string comparison — matching how RoleType is
-            // actually stored (see IdentityService.AddFarmMembershipAsync).
+            
             bool isEngineerOnFarm = await context.FarmMemberships
                 .AnyAsync(fm =>
                     fm.FarmId == zone.FarmId &&

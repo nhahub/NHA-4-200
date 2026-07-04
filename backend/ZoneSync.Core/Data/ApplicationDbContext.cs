@@ -147,24 +147,23 @@ namespace ZoneSync.Core.Data
             #region Farm
             modelBuilder.Entity<Farm>(entity =>
             {
-                entity.ToTable("Farm"); // EF's default would pluralize to "Farms" — must match ZoneSyncDb.sql exactly
+                entity.ToTable("Farm");
 
                 entity.HasKey(f => f.FarmId);
 
                 entity.Property(f => f.TotalArea)
-                    .HasPrecision(10, 2); // matches dec(10,2) in ZoneSyncDb.sql — EF's default is decimal(18,2), must override
+                    .HasPrecision(10, 2); 
 
                 entity.Property(f => f.FarmName).HasMaxLength(50);
                 entity.Property(f => f.FarmLocation).HasMaxLength(100);
                 entity.Property(f => f.SoilType).HasMaxLength(100);
 
-                // Farm -> OwnerUser (FK: OwnerUserId -> User.UserId)
                 entity.HasOne(f => f.OwnerUser)
-                    .WithMany() // Member 1's User entity doesn't need a "Farms owned" collection unless they want one
+                    .WithMany() 
                     .HasForeignKey(f => f.OwnerUserId)
-                    .OnDelete(DeleteBehavior.Restrict); // don't let a User delete cascade-wipe Farms
+                    .OnDelete(DeleteBehavior.Restrict); 
 
-                // Farm has many Zones
+                
                 entity.HasMany(f => f.Zones)
                     .WithOne(z => z.Farm)
                     .HasForeignKey(z => z.FarmId)
@@ -176,7 +175,9 @@ namespace ZoneSync.Core.Data
             #region Zone
             modelBuilder.Entity<Zone>(entity =>
             {
-                entity.ToTable("Zone");
+                entity.ToTable("Zone", t => t.HasCheckConstraint(
+                    "CHK_Zone_Status",
+                    "[ZoneStatus] IN ('Available', 'Planted', 'Inactive')"));
 
                 entity.HasKey(z => z.ZoneId);
 
@@ -185,36 +186,22 @@ namespace ZoneSync.Core.Data
 
                 entity.Property(z => z.ZoneName).HasMaxLength(50);
 
-                // Store the ZoneStatus enum as its string name ('Available', 'Planted',
-                // 'Inactive'), not EF's default int (0, 1, 2). Must match ZoneSyncDb.sql
-                // exactly so raw queries / other modules reading this column see the
-                // same values the rest of the team expects.
                 entity.Property(z => z.ZoneStatus)
                     .HasConversion<string>()
                     .HasMaxLength(50);
 
-                // Mirrors CHK_Zone_Status in ZoneSyncDb.sql. EF Core does NOT generate
-                // CHECK constraints from C# enums or attributes — must be added explicitly.
-                entity.HasCheckConstraint(
-                    "CHK_Zone_Status",
-                    "[ZoneStatus] IN ('Available', 'Planted', 'Inactive')");
-
-                // Zone -> CreatedByUser (FK: CreatedByUserId -> User.UserId)
+                // Zone -> CreatedByUser (FK: CreatedByUserId -> UserProfile.UserId)
                 entity.HasOne(z => z.CreatedByUser)
                     .WithMany()
                     .HasForeignKey(z => z.CreatedByUserId)
                     .OnDelete(DeleteBehavior.Restrict);
 
-                // Zone -> Supervisor (FK: SupervisorId -> User.UserId, nullable)
-                // Both this and CreatedByUser point at User — EF Core cannot tell them
-                // apart by convention alone. Each needs its own explicit HasOne/
-                // HasForeignKey pair with a distinct FK column, or EF will throw a
-                // "multiple relationships" configuration error at startup.
+                // Zone -> Supervisor (FK: SupervisorId -> UserProfile.UserId, nullable)
                 entity.HasOne(z => z.Supervisor)
                     .WithMany()
                     .HasForeignKey(z => z.SupervisorId)
                     .OnDelete(DeleteBehavior.Restrict)
-                    .IsRequired(false); // SupervisorId is nullable — a zone may have no supervisor yet
+                    .IsRequired(false);
             });
 
             #endregion
@@ -224,7 +211,6 @@ namespace ZoneSync.Core.Data
             {
                 entity.ToTable("ZoneUser");
 
-                // Composite PK — cannot be expressed via data annotations, must be Fluent API.
                 entity.HasKey(zu => new { zu.ZoneId, zu.UserId });
 
                 entity.HasOne(zu => zu.Zone)
@@ -243,7 +229,15 @@ namespace ZoneSync.Core.Data
             #region EntityActivityLog
             modelBuilder.Entity<EntityActivityLog>(entity =>
             {
-                entity.ToTable("EntityActivityLog");
+                entity.ToTable("EntityActivityLog", t =>
+                {
+                    t.HasCheckConstraint(
+                        "CHK_EntityActivityLog_EntityType",
+                        "[EntityType] IN ('Zone', 'CropPlan', 'Task')");
+                    t.HasCheckConstraint(
+                        "CHK_EntityActivityLog_ActionType",
+                        "[ActionType] IN ('Create', 'Update', 'Delete')");
+                });
 
                 entity.HasKey(e => e.ActivityId);
 
@@ -255,20 +249,7 @@ namespace ZoneSync.Core.Data
                     .HasConversion<string>()
                     .HasMaxLength(50);
 
-                entity.HasCheckConstraint(
-                    "CHK_EntityActivityLog_EntityType",
-                    "[EntityType] IN ('Zone', 'CropPlan', 'Task')");
-
-                entity.HasCheckConstraint(
-                    "CHK_EntityActivityLog_ActionType",
-                    "[ActionType] IN ('Create', 'Update', 'Delete')");
-
-                // EntityId is intentionally left unconfigured beyond its column type —
-                // it is a polymorphic reference (target table depends on EntityType) and
-                // must NOT be given a foreign key or navigation property. EF Core cannot
-                // represent this relationship; it stays a plain int, written to manually
-                // by FarmZoneService.WriteActivityLog.
-
+                
                 entity.HasOne(e => e.User)
                     .WithMany()
                     .HasForeignKey(e => e.UserId)

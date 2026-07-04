@@ -17,7 +17,7 @@ namespace ZoneSync.Web.Controllers
         {
             var model = new CreateZoneViewModel { FarmId = farmId };
 
-            // Populate the assigned-users / supervisor pickers from this farm's members.
+            
             ViewBag.FarmMembers = await farmZoneService.GetFarmMembersAsync(farmId);
 
             return View(model);

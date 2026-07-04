@@ -20,10 +20,6 @@ namespace ZoneSync.Service.Contracts
 
         Task AssignUserToZoneAsync(int zoneId, int userId);
         Task SetZoneSupervisorAsync(int zoneId, int supervisorUserId);
-
-        // Used to populate the "Assigned Users" / "Supervisor" pickers on the
-        // Zone Create/Details views — returns members of the zone's farm
-        // (via FarmMembership), not every user in the system.
         Task<List<(int UserId, string FullName, FarmRoleType RoleType)>> GetFarmMembersAsync(int farmId);
     }
 }

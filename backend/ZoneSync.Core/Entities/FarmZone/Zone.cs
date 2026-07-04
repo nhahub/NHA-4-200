@@ -26,9 +26,6 @@ namespace ZoneSync.Core.Entities.FarmZone
         public int FarmId { get; set; }
         public Farm Farm { get; set; }
 
-        // Navigation: users (engineers/farmers) assigned to this zone.
-        // Role (Engineer vs Farmer) is NOT stored here — derive it via:
-        // ZoneUser -> Zone -> Farm -> FarmMembership(UserId, FarmId).RoleType
         public ICollection<ZoneUser> ZoneUsers { get; set; } = new List<ZoneUser>();
     }
 }

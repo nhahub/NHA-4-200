@@ -50,8 +50,7 @@ namespace ZoneSync.Web.ViewModels.FarmZone
         public ZoneStatus ZoneStatus { get; set; }
     }
 
-    // Used on the Zone Details view to display assigned users and supervisor —
-    // read-only, not a form submission.
+    
     public class ZoneDetailsViewModel
     {
         public int ZoneId { get; set; }

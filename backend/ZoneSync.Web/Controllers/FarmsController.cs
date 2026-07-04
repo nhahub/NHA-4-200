@@ -83,7 +83,7 @@ namespace ZoneSync.Web.Controllers
                 return NotFound();
             }
 
-            // Task doc requirement: Farm Details must only list non-deleted zones.
+           
             var zones = await farmZoneService.GetActiveZonesForFarmAsync(id);
 
             ViewBag.Zones = zones;
