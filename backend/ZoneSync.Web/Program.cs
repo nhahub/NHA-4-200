@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ZoneSync.Core.Data;
 using ZoneSync.Core.Entities.Identity;
 using ZoneSync.Service.Contracts;
+using ZoneSync.Service.Modules.FarmZone;
 using ZoneSync.Service.Modules.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,8 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IFarmZoneService, FarmZoneService>();
 
 var app = builder.Build();
 

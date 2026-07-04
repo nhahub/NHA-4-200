@@ -1,0 +1,39 @@
+@model ZoneSync.Web.ViewModels.FarmZone.EditZoneViewModel
+
+@{
+    ViewData["Title"] = "Edit Zone";
+}
+
+<h1>Edit Zone</h1>
+
+<form asp-action="Edit" method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <input type="hidden" asp-for="ZoneId" />
+
+    <div class="col-md-6">
+        <label asp-for="ZoneName" class="form-label"></label>
+        <input asp-for="ZoneName" class="form-control" />
+        <span asp-validation-for="ZoneName" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="ZoneArea" class="form-label"></label>
+        <input asp-for="ZoneArea" class="form-control" />
+        <span asp-validation-for="ZoneArea" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="ZoneStatus" class="form-label"></label>
+        <select asp-for="ZoneStatus" class="form-select" asp-items="Html.GetEnumSelectList<ZoneSync.Core.Enums.ZoneStatus>()"></select>
+        <span asp-validation-for="ZoneStatus" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

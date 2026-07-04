@@ -1,0 +1,43 @@
+@model ZoneSync.Web.ViewModels.FarmZone.CreateFarmViewModel
+
+@{
+    ViewData["Title"] = "Create Farm";
+}
+
+<h1>Create Farm</h1>
+
+<form asp-action="Create" method="post" class="row g-3">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="col-md-6">
+        <label asp-for="OwnerUserId" class="form-label"></label>
+        <input asp-for="OwnerUserId" class="form-control" />
+        <span asp-validation-for="OwnerUserId" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="FarmName" class="form-label"></label>
+        <input asp-for="FarmName" class="form-control" />
+        <span asp-validation-for="FarmName" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="FarmLocation" class="form-label"></label>
+        <input asp-for="FarmLocation" class="form-control" />
+        <span asp-validation-for="FarmLocation" class="text-danger"></span>
+    </div>
+
+    <div class="col-md-6">
+        <label asp-for="SoilType" class="form-label"></label>
+        <input asp-for="SoilType" class="form-control" />
+        <span asp-validation-for="SoilType" class="text-danger"></span>
+    </div>
+
+    <div class="col-12">
+        <button type="submit" class="btn btn-primary">Create</button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
