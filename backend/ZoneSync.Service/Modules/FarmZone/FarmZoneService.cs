@@ -38,8 +38,12 @@ namespace ZoneSync.Service.Modules.FarmZone
             };
 
             context.Farms.Add(farm);
-            await context.SaveChangesAsync(); 
+            await context.SaveChangesAsync(); // save first so farm.FarmId is generated
 
+            // Owner gets a FarmMembership row automatically — reuses Member 1's
+            // AddFarmMembershipAsync (same method AcceptInvitationAsync calls for
+            // invited Engineers/Farmers). That method does NOT call SaveChangesAsync
+            // itself, so it's done here explicitly.
             await identityService.AddFarmMembershipAsync(farm.FarmId, ownerUserId, FarmRoleType.Owner);
             await context.SaveChangesAsync();
 
@@ -70,7 +74,44 @@ namespace ZoneSync.Service.Modules.FarmZone
 
             await context.SaveChangesAsync();
 
-           
+            // NOTE (agreed earlier): soft-deleting a Farm does NOT cascade-delete its
+            // Zones. Zones just get filtered out wherever the app queries "zones for
+            // this farm", by checking Farm.IsDeleted along the way.
+        }
+
+        public async Task<Core.Entities.FarmZone.Farm?> GetFarmAsync(int farmId)
+        {
+            return await context.Farms.FirstOrDefaultAsync(f => f.FarmId == farmId && !f.IsDeleted);
+        }
+
+        public async Task<System.Collections.Generic.List<Zone>> GetActiveZonesForFarmAsync(int farmId)
+        {
+            // Per the task doc: Farm Details must only show non-deleted zones.
+            return await context.Zones
+                .Where(z => z.FarmId == farmId && !z.IsDeleted)
+                .ToListAsync();
+        }
+
+        public async Task<Zone?> GetZoneAsync(int zoneId)
+        {
+            return await context.Zones
+                .Include(z => z.Farm)
+                .Include(z => z.Supervisor)
+                .Include(z => z.ZoneUsers)
+                    .ThenInclude(zu => zu.User)
+                .FirstOrDefaultAsync(z => z.ZoneId == zoneId && !z.IsDeleted);
+        }
+
+        public async Task<System.Collections.Generic.List<(int UserId, string FullName, FarmRoleType RoleType)>> GetFarmMembersAsync(int farmId)
+        {
+            var members = await context.FarmMemberships
+                .Include(fm => fm.UserProfile)
+                .Where(fm => fm.FarmId == farmId)
+                .ToListAsync();
+
+            return members
+                .Select(m => (m.UserProfile.UserId, $"{m.UserProfile.UserFirstName} {m.UserProfile.UserLastName}", m.RoleType))
+                .ToList();
         }
 
         // ---------------------------------------------------------------
@@ -132,7 +173,9 @@ namespace ZoneSync.Service.Modules.FarmZone
             await RecalculateFarmTotalsAsync(zone.FarmId);
             await WriteActivityLogAsync(zone.CreatedByUserId, ActivityEntityType.Zone, zone.ZoneId, ActivityActionType.Delete);
 
-            
+            // NOTE (agreed earlier): ZoneUser rows for this zone are NOT deleted here.
+            // They're left in place and simply filtered out anywhere the app queries
+            // "who's assigned to this zone" by checking Zone.IsDeleted first.
         }
 
         // ---------------------------------------------------------------
@@ -173,7 +216,10 @@ namespace ZoneSync.Service.Modules.FarmZone
                 throw new InvalidOperationException(
                     "This user must be assigned to the zone before they can be made supervisor.");
 
-            
+            // Confirms the candidate holds the Engineer role on this zone's farm,
+            // via Member 1's FarmMembership table. Uses the FarmRoleType enum
+            // directly — not a string comparison — matching how RoleType is
+            // actually stored (see IdentityService.AddFarmMembershipAsync).
             bool isEngineerOnFarm = await context.FarmMemberships
                 .AnyAsync(fm =>
                     fm.FarmId == zone.FarmId &&
