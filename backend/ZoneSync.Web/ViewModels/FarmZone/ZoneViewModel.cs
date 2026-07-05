@@ -9,12 +9,7 @@ namespace ZoneSync.Web.ViewModels.FarmZone
         [Display(Name = "Farm")]
         public int FarmId { get; set; }
 
-        // TODO (team-wide gap, same as CreateFarmViewModel.OwnerUserId): should come
-        // from the logged-in session, not a manual field.
-        [Required]
-        [Display(Name = "Created By User Id")]
-        public int CreatedByUserId { get; set; }
-
+        
         [Required]
         [Display(Name = "Zone Name")]
         public string ZoneName { get; set; } = null!;
@@ -23,9 +18,6 @@ namespace ZoneSync.Web.ViewModels.FarmZone
         [Display(Name = "Area")]
         public decimal ZoneArea { get; set; }
 
-        // Per the task doc: Zone Create screen must let the owner pick assigned
-        // users and a supervisor at creation time. Populate the dropdown/checkbox
-        // list for these two in the controller from FarmMembership for this Farm.
         [Display(Name = "Assigned Users")]
         public List<int> AssignedUserIds { get; set; } = new();
 
@@ -50,8 +42,7 @@ namespace ZoneSync.Web.ViewModels.FarmZone
         public ZoneStatus ZoneStatus { get; set; }
     }
 
-    
-    public class ZoneDetailsViewModel
+   public class ZoneDetailsViewModel
     {
         public int ZoneId { get; set; }
         public string ZoneName { get; set; } = null!;

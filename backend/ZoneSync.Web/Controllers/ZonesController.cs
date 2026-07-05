@@ -1,23 +1,28 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using ZoneSync.Core.Entities.Identity;
 using ZoneSync.Service.Contracts;
 using ZoneSync.Web.ViewModels.FarmZone;
 
 namespace ZoneSync.Web.Controllers
 {
+    [Authorize]
     public class ZonesController : Controller
     {
         private readonly IFarmZoneService farmZoneService;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public ZonesController(IFarmZoneService farmZoneService)
+        public ZonesController(IFarmZoneService farmZoneService, UserManager<ApplicationUser> userManager)
         {
             this.farmZoneService = farmZoneService;
+            this.userManager = userManager;
         }
 
         public async Task<IActionResult> Create(int farmId)
         {
             var model = new CreateZoneViewModel { FarmId = farmId };
 
-            
             ViewBag.FarmMembers = await farmZoneService.GetFarmMembersAsync(farmId);
 
             return View(model);
@@ -33,11 +38,14 @@ namespace ZoneSync.Web.Controllers
                 return View(model);
             }
 
+            var aspNetUserId = userManager.GetUserId(User);
+            var createdByUserId = await farmZoneService.GetUserProfileIdAsync(aspNetUserId!);
+
             var zone = await farmZoneService.CreateZoneAsync(
                 model.FarmId,
                 model.ZoneName,
                 model.ZoneArea,
-                model.CreatedByUserId);
+                createdByUserId);
 
             foreach (var userId in model.AssignedUserIds)
             {

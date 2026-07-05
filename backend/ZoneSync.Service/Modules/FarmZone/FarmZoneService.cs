@@ -38,9 +38,12 @@ namespace ZoneSync.Service.Modules.FarmZone
             };
 
             context.Farms.Add(farm);
-            await context.SaveChangesAsync(); 
+            await context.SaveChangesAsync(); // save first so farm.FarmId is generated
 
-           
+            // Owner gets a FarmMembership row automatically — reuses Member 1's
+            // AddFarmMembershipAsync (same method AcceptInvitationAsync calls for
+            // invited Engineers/Farmers). That method does NOT call SaveChangesAsync
+            // itself, so it's done here explicitly.
             await identityService.AddFarmMembershipAsync(farm.FarmId, ownerUserId, FarmRoleType.Owner);
             await context.SaveChangesAsync();
 
@@ -71,7 +74,7 @@ namespace ZoneSync.Service.Modules.FarmZone
 
             await context.SaveChangesAsync();
 
-        }
+           }
 
         public async Task<Core.Entities.FarmZone.Farm?> GetFarmAsync(int farmId)
         {
@@ -79,7 +82,8 @@ namespace ZoneSync.Service.Modules.FarmZone
         }
 
         public async Task<System.Collections.Generic.List<Zone>> GetActiveZonesForFarmAsync(int farmId)
-        {   return await context.Zones
+        {
+             return await context.Zones
                 .Where(z => z.FarmId == farmId && !z.IsDeleted)
                 .ToListAsync();
         }
@@ -92,6 +96,17 @@ namespace ZoneSync.Service.Modules.FarmZone
                 .Include(z => z.ZoneUsers)
                     .ThenInclude(zu => zu.User)
                 .FirstOrDefaultAsync(z => z.ZoneId == zoneId && !z.IsDeleted);
+        }
+
+        public async Task<int> GetUserProfileIdAsync(string aspNetUserId)
+        {
+            var profile = await context.UserProfiles
+                .FirstOrDefaultAsync(u => u.AspNetUserId == aspNetUserId);
+
+            if (profile == null)
+                throw new InvalidOperationException("No UserProfile found for the current logged-in user.");
+
+            return profile.UserId;
         }
 
         public async Task<System.Collections.Generic.List<(int UserId, string FullName, FarmRoleType RoleType)>> GetFarmMembersAsync(int farmId)
@@ -165,8 +180,7 @@ namespace ZoneSync.Service.Modules.FarmZone
             await RecalculateFarmTotalsAsync(zone.FarmId);
             await WriteActivityLogAsync(zone.CreatedByUserId, ActivityEntityType.Zone, zone.ZoneId, ActivityActionType.Delete);
 
-            
-        }
+             }
 
         // ---------------------------------------------------------------
         // ZONE ASSIGNMENTS
@@ -206,8 +220,7 @@ namespace ZoneSync.Service.Modules.FarmZone
                 throw new InvalidOperationException(
                     "This user must be assigned to the zone before they can be made supervisor.");
 
-            
-            bool isEngineerOnFarm = await context.FarmMemberships
+              bool isEngineerOnFarm = await context.FarmMemberships
                 .AnyAsync(fm =>
                     fm.FarmId == zone.FarmId &&
                     fm.UserId == supervisorUserId &&

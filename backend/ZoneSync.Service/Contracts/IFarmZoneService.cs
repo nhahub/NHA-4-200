@@ -20,6 +20,9 @@ namespace ZoneSync.Service.Contracts
 
         Task AssignUserToZoneAsync(int zoneId, int userId);
         Task SetZoneSupervisorAsync(int zoneId, int supervisorUserId);
+
+        Task<int> GetUserProfileIdAsync(string aspNetUserId);
+
         Task<List<(int UserId, string FullName, FarmRoleType RoleType)>> GetFarmMembersAsync(int farmId);
     }
 }

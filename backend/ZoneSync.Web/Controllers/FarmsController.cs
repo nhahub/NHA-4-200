@@ -1,16 +1,22 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using ZoneSync.Core.Entities.Identity;
 using ZoneSync.Service.Contracts;
 using ZoneSync.Web.ViewModels.FarmZone;
 
 namespace ZoneSync.Web.Controllers
 {
+    [Authorize]
     public class FarmsController : Controller
     {
         private readonly IFarmZoneService farmZoneService;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public FarmsController(IFarmZoneService farmZoneService)
+        public FarmsController(IFarmZoneService farmZoneService, UserManager<ApplicationUser> userManager)
         {
             this.farmZoneService = farmZoneService;
+            this.userManager = userManager;
         }
 
         public IActionResult Create()
@@ -27,11 +33,14 @@ namespace ZoneSync.Web.Controllers
                 return View(model);
             }
 
+            var aspNetUserId = userManager.GetUserId(User);
+            var ownerUserId = await farmZoneService.GetUserProfileIdAsync(aspNetUserId!);
+
             var farm = await farmZoneService.CreateFarmAsync(
                 model.FarmName,
                 model.FarmLocation,
                 model.SoilType,
-                model.OwnerUserId);
+                ownerUserId);
 
             return RedirectToAction(nameof(Details), new { id = farm.FarmId });
         }
@@ -83,7 +92,6 @@ namespace ZoneSync.Web.Controllers
                 return NotFound();
             }
 
-           
             var zones = await farmZoneService.GetActiveZonesForFarmAsync(id);
 
             ViewBag.Zones = zones;

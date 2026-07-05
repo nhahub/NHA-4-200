@@ -4,15 +4,7 @@ namespace ZoneSync.Web.ViewModels.FarmZone
 {
     public class CreateFarmViewModel
     {
-        // TODO (team-wide gap, not specific to this module): this should come from
-        // the logged-in user's session, not a manual form field. Matches the same
-        // temporary pattern currently used in CreateInvitationViewModel.SentByUserId —
-        // flag to the team before submission.
-        [Required]
-        [Display(Name = "Owner User Id")]
-        public int OwnerUserId { get; set; }
-
-        [Required]
+         [Required]
         [Display(Name = "Farm Name")]
         public string FarmName { get; set; } = null!;
 
