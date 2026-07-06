@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using ZoneSync.Core.Entities.CropModule;
+using ZoneSync.Core.Entities.StageInformationModule;
 
 namespace ZoneSync.Core.Entities.CropPlanModule
 {
@@ -15,7 +16,7 @@ namespace ZoneSync.Core.Entities.CropPlanModule
         public DateTime? ActualHarvestTime { get; set; }
 
         public Crop Crop { get; set; }
-        public zone Zone { get; set; }
+        public Zone Zone { get; set; }
         public ICollection<StageInformation> StageInformations { get; set; } = new List<StageInformation>();
         public ICollection<CheckRequirement> CheckRequirements { get; set; } = new List<CheckRequirement>();
 
