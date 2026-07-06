@@ -15,7 +15,7 @@ namespace ZoneSync.Core.Entities.GrowthStageModule
         public int StageDuration { get; set; } // Duration in days
 
         public Crop Crop { get; set; }
-        public ICollection<StageRequirement> StageRequirements { get; set; } = new List<StageRequirement>():
+        public ICollection<StageRequirement> StageRequirements { get; set; } = new List<StageRequirement>();
 
     }
 }
