@@ -6,7 +6,7 @@ using ZoneSync.Core.Entities.GrowthStageModule;
 
 namespace ZoneSync.Core.Entities.CropModule
 {
-    internal class Crop
+   public class Crop
     {
         public int CropId { get; set; }
         public string CropName { get; set; }

@@ -8,7 +8,7 @@ using ZoneSync.Core.Entities.GrowthStageModule;
 
 namespace ZoneSync.Core.Entities.StageInformationModule
 {
-    internal class StageInformation
+    public class StageInformation
     {
         
             [Key]

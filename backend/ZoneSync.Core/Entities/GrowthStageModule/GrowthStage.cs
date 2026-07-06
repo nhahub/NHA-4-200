@@ -6,7 +6,7 @@ using ZoneSync.Core.Entities.StageRequirementModule;
 
 namespace ZoneSync.Core.Entities.GrowthStageModule
 {
-    internal class GrowthStage
+    public class GrowthStage
     {
         public int StageId { get; set; }
         public int CropId { get; set; }

@@ -1,6 +1,12 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using ZoneSync.Core.Entities;
+using ZoneSync.Core.Entities.CropModule;
+using ZoneSync.Core.Entities.CropPlanModule;
+using ZoneSync.Core.Entities.GrowthStageModule;
 using ZoneSync.Core.Entities.Identity;
+using ZoneSync.Core.Entities.StageInformationModule;
+using ZoneSync.Core.Entities.StageRequirementModule;
 
 namespace ZoneSync.Core.Data
 {
@@ -14,6 +20,17 @@ namespace ZoneSync.Core.Data
         public DbSet<UserProfile> UserProfiles => Set<UserProfile>();
         public DbSet<Invitation> Invitations => Set<Invitation>();
         public DbSet<FarmMembership> FarmMemberships => Set<FarmMembership>();
+
+        
+        public DbSet<Zone> Zones => Set<Zone>();
+
+        public DbSet<Crop> Crops => Set<Crop>();
+        public DbSet<GrowthStage> GrowthStages => Set<GrowthStage>();
+        public DbSet<StageRequirement> StageRequirements => Set<StageRequirement>();
+        public DbSet<CropPlan> CropPlans => Set<CropPlan>();
+        public DbSet<StageInformation> StageInformations => Set<StageInformation>();
+        public DbSet<CheckRequirement> CheckRequirements => Set<CheckRequirement>();
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -137,6 +154,57 @@ namespace ZoneSync.Core.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
+            #endregion
+
+            #region Crop Module
+
+            modelBuilder.Entity<GrowthStage>()
+                .HasOne(g => g.Crop)
+                .WithMany(c => c.GrowthStages)
+                .HasForeignKey(g => g.CropId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StageRequirement>()
+                .HasOne(s => s.GrowthStage)
+                .WithMany(g => g.StageRequirements)
+                .HasForeignKey(s => s.StageId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CropPlan>()
+                .HasOne(cp => cp.Crop)
+                .WithMany(c => c.CropPlans)
+                .HasForeignKey(cp => cp.CropId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CropPlan>()
+                .HasOne(cp => cp.Zone)
+                .WithMany()
+                .HasForeignKey(cp => cp.ZoneId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StageInformation>()
+                .HasOne(si => si.GrowthStage)
+                .WithMany()
+                .HasForeignKey(si => si.StageId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StageInformation>()
+                .HasOne(si => si.CropPlan)
+                .WithMany(cp => cp.StageInformations)
+                .HasForeignKey(si => si.CropPlanId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CheckRequirement>()
+                .HasOne(cr => cr.StageRequirement)
+                .WithMany()
+                .HasForeignKey(cr => cr.RequirementId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CheckRequirement>()
+                .HasOne(cr => cr.CropPlan)
+                .WithMany(cp => cp.CheckRequirements)
+                .HasForeignKey(cr => cr.CropPlanId)
+                .OnDelete(DeleteBehavior.Restrict);
             #endregion
         }
     }

@@ -6,7 +6,7 @@ using ZoneSync.Core.Entities.StageInformationModule;
 
 namespace ZoneSync.Core.Entities.CropPlanModule
 {
-    internal class CropPlan
+    public class CropPlan
     {
         public int CropPlanId { get; set; }
         public int CropId { get; set; }

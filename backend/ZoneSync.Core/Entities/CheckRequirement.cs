@@ -6,7 +6,7 @@ using ZoneSync.Core.Entities.StageRequirementModule;
 
 namespace ZoneSync.Core.Entities
 {
-    internal class CheckRequirement
+    public class CheckRequirement
     {
         public int CheckId { get; set; }
         public int RequirementId { get; set; }
