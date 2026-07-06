@@ -31,6 +31,6 @@ namespace ZoneSync.Core.Entities.StageInformationModule
 
             [ForeignKey("CropPlanId")]
             public CropPlan CropPlan { get; set; }
-        
+        public string StageName { get; set;
     }
 }
