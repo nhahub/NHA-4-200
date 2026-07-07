@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using ZoneSync.Core.Data;
 using ZoneSync.Core.Entities.CropPlanModule;
 using ZoneSync.Core.Entities.FarmZone;
-using ZoneSync.Core.Entities.FarmZone; 
 using ZoneSync.Web.ViewModels;
 
 namespace ZoneSync.Web.Controllers
