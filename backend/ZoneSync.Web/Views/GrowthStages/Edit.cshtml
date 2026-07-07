@@ -1,0 +1,14 @@
+@model ZoneSync.Core.Entities.GrowthStageModule.GrowthStage
+
+@{
+    ViewData["Title"] = "Edit Growth Stage";
+}
+
+<h1>Edit Growth Stage</h1>
+<form asp-action="Edit" asp-route-id="@Model.StageId" method="post" class="row g-3">
+    <input type="hidden" asp-for="StageId" />
+    <partial name="_GrowthStageForm" model="Model" />
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">Save</button>
+    </div>
+</form>

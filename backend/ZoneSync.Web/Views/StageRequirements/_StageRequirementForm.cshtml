@@ -1,0 +1,30 @@
+@model ZoneSync.Core.Entities.StageRequirementModule.StageRequirement
+
+<div class="col-md-6">
+    <label asp-for="StageId" class="form-label">Growth Stage</label>
+    <select asp-for="StageId" asp-items="ViewBag.Stages" class="form-select"></select>
+</div>
+<div class="col-md-6">
+    <label asp-for="ReqName" class="form-label"></label>
+    <input asp-for="ReqName" class="form-control" />
+</div>
+<div class="col-md-4">
+    <label asp-for="MinValue" class="form-label"></label>
+    <input asp-for="MinValue" class="form-control" />
+</div>
+<div class="col-md-4">
+    <label asp-for="MaxValue" class="form-label"></label>
+    <input asp-for="MaxValue" class="form-control" />
+</div>
+<div class="col-md-4">
+    <label asp-for="DefaultVerificationAfterHours" class="form-label"></label>
+    <input asp-for="DefaultVerificationAfterHours" class="form-control" />
+</div>
+<div class="col-md-6">
+    <label asp-for="ApplicablePeriod" class="form-label"></label>
+    <input asp-for="ApplicablePeriod" class="form-control" />
+</div>
+<div class="col-md-6 form-check mt-4">
+    <input asp-for="IsChosenByUser" class="form-check-input" />
+    <label asp-for="IsChosenByUser" class="form-check-label"></label>
+</div>

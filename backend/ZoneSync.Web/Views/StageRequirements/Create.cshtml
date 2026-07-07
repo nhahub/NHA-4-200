@@ -1,0 +1,13 @@
+@model ZoneSync.Core.Entities.StageRequirementModule.StageRequirement
+
+@{
+    ViewData["Title"] = "Create Stage Requirement";
+}
+
+<h1>Create Stage Requirement</h1>
+<form asp-action="Create" method="post" class="row g-3">
+    <partial name="_StageRequirementForm" model="Model" />
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">Create</button>
+    </div>
+</form>

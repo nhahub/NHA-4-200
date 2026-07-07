@@ -1,7 +1,13 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using ZoneSync.Core.Entities.FarmZone;
+using ZoneSync.Core.Entities;
+using ZoneSync.Core.Entities.CropModule;
+using ZoneSync.Core.Entities.CropPlanModule;
+using ZoneSync.Core.Entities.GrowthStageModule;
 using ZoneSync.Core.Entities.Identity;
+using ZoneSync.Core.Entities.StageInformationModule;
+using ZoneSync.Core.Entities.StageRequirementModule;
 
 namespace ZoneSync.Core.Data
 {
@@ -19,6 +25,16 @@ namespace ZoneSync.Core.Data
         public DbSet<Zone> Zones { get; set; }
         public DbSet<ZoneUser> ZoneUsers { get; set; }
         public DbSet<EntityActivityLog> EntityActivityLogs { get; set; }
+
+        
+
+        public DbSet<Crop> Crops => Set<Crop>();
+        public DbSet<GrowthStage> GrowthStages => Set<GrowthStage>();
+        public DbSet<StageRequirement> StageRequirements => Set<StageRequirement>();
+        public DbSet<CropPlan> CropPlans => Set<CropPlan>();
+        public DbSet<StageInformation> StageInformations => Set<StageInformation>();
+        public DbSet<CheckRequirement> CheckRequirements => Set<CheckRequirement>();
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -142,6 +158,120 @@ namespace ZoneSync.Core.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
+            #endregion
+
+            #region Crop Module
+            modelBuilder.Entity<Crop>(entity =>
+            {
+                entity.ToTable("Crops");
+                entity.HasKey(c => c.CropId);
+                entity.Property(c => c.CropName).HasMaxLength(100).IsRequired();
+                entity.Property(c => c.CropSeason).HasMaxLength(50).IsRequired();
+                entity.Property(c => c.CropCategory).HasMaxLength(50).IsRequired();
+                entity.Property(c => c.IrrigationType).HasMaxLength(50).IsRequired();
+            });
+
+            modelBuilder.Entity<GrowthStage>(entity =>
+            {
+                entity.ToTable("GrowthStages");
+                entity.HasKey(g => g.StageId);
+                entity.Property(g => g.StageName).HasMaxLength(100).IsRequired();
+            });
+
+            modelBuilder.Entity<StageRequirement>(entity =>
+            {
+                entity.ToTable("StageRequirements");
+                entity.HasKey(s => s.ReqId);
+                entity.Property(s => s.ReqName).HasMaxLength(100).IsRequired();
+                entity.Property(s => s.MinValue).HasPrecision(10, 2);
+                entity.Property(s => s.MaxValue).HasPrecision(10, 2);
+                entity.Property(s => s.ApplicablePeriod).HasMaxLength(100).IsRequired();
+            });
+
+            modelBuilder.Entity<CropPlan>(entity =>
+            {
+                entity.ToTable("CropPlans");
+                entity.HasKey(cp => cp.CropPlanId);
+            });
+
+            modelBuilder.Entity<StageInformation>(entity =>
+            {
+                entity.ToTable("StageInformations");
+                entity.HasKey(si => si.Id);
+                entity.Property(si => si.StageName).HasMaxLength(100).IsRequired();
+                entity.Property(si => si.StageStatus).HasMaxLength(50).IsRequired();
+                entity.Property(si => si.DelayDescription).HasMaxLength(500);
+            });
+
+            modelBuilder.Entity<CheckRequirement>(entity =>
+            {
+                entity.ToTable("CheckRequirements");
+                entity.HasKey(cr => cr.CheckId);
+                entity.Property(cr => cr.CheckedValue).HasPrecision(10, 2);
+            });
+
+            modelBuilder.Entity<GrowthStage>()
+                .HasOne(g => g.Crop)
+                .WithMany(c => c.GrowthStages)
+                .HasForeignKey(g => g.CropId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StageRequirement>()
+                .HasOne(s => s.GrowthStage)
+                .WithMany(g => g.StageRequirements)
+                .HasForeignKey(s => s.StageId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CropPlan>()
+                .HasOne(cp => cp.Crop)
+                .WithMany(c => c.CropPlans)
+                .HasForeignKey(cp => cp.CropId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CropPlan>()
+                .HasOne(cp => cp.Zone)
+                .WithMany()
+                .HasForeignKey(cp => cp.ZoneId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StageInformation>()
+                .HasOne(si => si.GrowthStage)
+                .WithMany()
+                .HasForeignKey(si => si.StageId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<StageInformation>()
+                .HasOne(si => si.CropPlan)
+                .WithMany(cp => cp.StageInformations)
+                .HasForeignKey(si => si.CropPlanId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CheckRequirement>()
+                .HasOne(cr => cr.StageRequirement)
+                .WithMany()
+                .HasForeignKey(cr => cr.RequirementId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CheckRequirement>()
+                .HasOne(cr => cr.CropPlan)
+                .WithMany(cp => cp.CheckRequirements)
+                .HasForeignKey(cr => cr.CropPlanId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Crop>().HasData(
+                new Crop { CropId = 1, CropName = "Tomato", CropSeason = "Summer", CropCategory = "Vegetable", IrrigationType = "Drip" },
+                new Crop { CropId = 2, CropName = "Wheat", CropSeason = "Winter", CropCategory = "Grain", IrrigationType = "Sprinkler" });
+
+            modelBuilder.Entity<GrowthStage>().HasData(
+                new GrowthStage { StageId = 1, CropId = 1, StageName = "Germination", StageOrder = 1, StageDuration = 10 },
+                new GrowthStage { StageId = 2, CropId = 1, StageName = "Vegetative", StageOrder = 2, StageDuration = 30 },
+                new GrowthStage { StageId = 3, CropId = 1, StageName = "Harvest", StageOrder = 3, StageDuration = 20 },
+                new GrowthStage { StageId = 4, CropId = 2, StageName = "Tillering", StageOrder = 1, StageDuration = 25 });
+
+            modelBuilder.Entity<StageRequirement>().HasData(
+                new StageRequirement { ReqId = 1, StageId = 1, ReqName = "Soil moisture", MinValue = 45, MaxValue = 70, ApplicablePeriod = "Daily", DefaultVerificationAfterHours = 24, IsChosenByUser = true },
+                new StageRequirement { ReqId = 2, StageId = 2, ReqName = "Temperature", MinValue = 18, MaxValue = 30, ApplicablePeriod = "Daily", DefaultVerificationAfterHours = 24, IsChosenByUser = true },
+                new StageRequirement { ReqId = 3, StageId = 4, ReqName = "Water level", MinValue = 30, MaxValue = 60, ApplicablePeriod = "Weekly", DefaultVerificationAfterHours = 48, IsChosenByUser = true });
             #endregion
 
             #region Farm

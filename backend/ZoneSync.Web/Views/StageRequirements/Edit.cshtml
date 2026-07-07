@@ -1,0 +1,14 @@
+@model ZoneSync.Core.Entities.StageRequirementModule.StageRequirement
+
+@{
+    ViewData["Title"] = "Edit Stage Requirement";
+}
+
+<h1>Edit Stage Requirement</h1>
+<form asp-action="Edit" asp-route-id="@Model.ReqId" method="post" class="row g-3">
+    <input type="hidden" asp-for="ReqId" />
+    <partial name="_StageRequirementForm" model="Model" />
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">Save</button>
+    </div>
+</form>

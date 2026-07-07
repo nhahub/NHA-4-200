@@ -1,0 +1,49 @@
+@model ZoneSync.Core.Entities.CropModule.Crop
+
+@{
+    ViewData["Title"] = "Crop Details";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h1>@Model.CropName</h1>
+        <p class="text-muted mb-0">@Model.CropSeason - @Model.CropCategory - @Model.IrrigationType</p>
+    </div>
+    <a asp-controller="GrowthStages" asp-action="Create" asp-route-cropId="@Model.CropId" class="btn btn-success">Add Stage</a>
+</div>
+
+@foreach (var stage in Model.GrowthStages.OrderBy(s => s.StageOrder))
+{
+    <div class="border rounded p-3 mb-3">
+        <div class="d-flex justify-content-between">
+            <h4>@stage.StageOrder. @stage.StageName (@stage.StageDuration days)</h4>
+            <div>
+                <a asp-controller="GrowthStages" asp-action="Edit" asp-route-id="@stage.StageId">Edit Stage</a> |
+                <a asp-controller="StageRequirements" asp-action="Create" asp-route-stageId="@stage.StageId">Add Requirement</a>
+            </div>
+        </div>
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Requirement</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Period</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var req in stage.StageRequirements)
+            {
+                <tr>
+                    <td>@req.ReqName</td>
+                    <td>@req.MinValue</td>
+                    <td>@req.MaxValue</td>
+                    <td>@req.ApplicablePeriod</td>
+                    <td><a asp-controller="StageRequirements" asp-action="Edit" asp-route-id="@req.ReqId">Edit</a></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}
