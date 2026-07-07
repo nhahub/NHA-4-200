@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using ZoneSync.Core.Entities.CropPlanModule;
@@ -8,6 +9,7 @@ namespace ZoneSync.Core.Entities
 {
     public class CheckRequirement
     {
+        [Key]
         public int CheckId { get; set; }
         public int RequirementId { get; set; }
         public int CropPlanId { get; set; }

@@ -1,14 +1,17 @@
-﻿using ZoneSync.Core.Entities.FarmZone;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 using ZoneSync.Core.Entities.CropModule;
+using ZoneSync.Core.Entities.FarmZone;
 using ZoneSync.Core.Entities.StageInformationModule;
 
 namespace ZoneSync.Core.Entities.CropPlanModule
 {
     public class CropPlan
     {
+        [Key]
+        public int Stage_ID { get; set; }
         public int CropPlanId { get; set; }
         public int CropId { get; set; }
         public int ZoneId { get; set; }

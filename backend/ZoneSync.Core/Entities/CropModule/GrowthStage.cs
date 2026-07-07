@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.ComponentModel.DataAnnotations;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using ZoneSync.Core.Entities.CropModule;
@@ -8,6 +9,8 @@ namespace ZoneSync.Core.Entities.GrowthStageModule
 {
     public class GrowthStage
     {
+        [Key]
+        public int Stage_ID { get; set; }
         public int StageId { get; set; }
         public int CropId { get; set; }
         public string StageName { get; set; }

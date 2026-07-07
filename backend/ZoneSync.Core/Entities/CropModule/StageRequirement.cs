@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Text;
 using ZoneSync.Core.Entities.GrowthStageModule;
 
@@ -7,6 +8,8 @@ namespace ZoneSync.Core.Entities.StageRequirementModule
 {
     public class StageRequirement
     {
+        [Key]
+        public int Stage_ID { get; set; }
         public int ReqId { get; set; }
         public int StageId { get; set; }
         public string ReqName { get; set; }
