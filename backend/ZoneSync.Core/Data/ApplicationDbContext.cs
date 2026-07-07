@@ -27,7 +27,6 @@ namespace ZoneSync.Core.Data
         public DbSet<EntityActivityLog> EntityActivityLogs { get; set; }
 
         
-        public DbSet<Zone> Zones => Set<Zone>();
 
         public DbSet<Crop> Crops => Set<Crop>();
         public DbSet<GrowthStage> GrowthStages => Set<GrowthStage>();

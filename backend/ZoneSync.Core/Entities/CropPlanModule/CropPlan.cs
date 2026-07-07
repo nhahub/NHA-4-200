@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ZoneSync.Core.Entities.FarmZone;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using ZoneSync.Core.Entities.CropModule;

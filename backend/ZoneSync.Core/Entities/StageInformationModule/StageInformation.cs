@@ -10,27 +10,30 @@ namespace ZoneSync.Core.Entities.StageInformationModule
 {
     public class StageInformation
     {
-        
-            [Key]
-            public int Id { get; set; } 
-            public int StageId { get; set; }
-            public int CropPlanId { get; set; }
 
-            public DateTime PredictedStartDate { get; set; }  
+        [Key]
+        public int Id { get; set; }
+        public int StageId { get; set; }
+        public int CropPlanId { get; set; }
 
-            public DateTime PredictedEndDate { get; set; }
+        public DateTime PredictedStartDate { get; set; }
 
-            public DateTime? ActualStartDate { get; set; } 
-            public DateTime? ActualEndDate { get; set; } 
-            public string DelayDescription { get; set; } 
+        public DateTime PredictedEndDate { get; set; }
 
-            public string StageStatus { get; set; } 
+        public DateTime? ActualStartDate { get; set; }
+        public DateTime? ActualEndDate { get; set; }
+        public string DelayDescription { get; set; }
 
-            [ForeignKey("StageId")]
-            public GrowthStage GrowthStage { get; set; }
+        public string StageStatus { get; set; }
 
-            [ForeignKey("CropPlanId")]
-            public CropPlan CropPlan { get; set; }
-        public string StageName { get; set;
+        [ForeignKey("StageId")]
+        public GrowthStage GrowthStage { get; set; }
+
+        [ForeignKey("CropPlanId")]
+        public CropPlan CropPlan { get; set; }
+        public string StageName
+        {
+            get; set;
+        }
     }
 }
