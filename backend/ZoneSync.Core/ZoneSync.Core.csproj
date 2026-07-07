@@ -20,8 +20,4 @@
     <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.6" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Entities\CheckRequirementModule\" />
-  </ItemGroup>
-
 </Project>
