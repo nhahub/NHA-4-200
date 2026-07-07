@@ -1,0 +1,37 @@
+@model IEnumerable<ZoneSync.Core.Entities.CropModule.Crop>
+
+@{
+    ViewData["Title"] = "Crops";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Crops</h1>
+    <a asp-action="Create" class="btn btn-success">New Crop</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Season</th>
+            <th>Category</th>
+            <th>Stages</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var crop in Model)
+    {
+        <tr>
+            <td>@crop.CropName</td>
+            <td>@crop.CropSeason</td>
+            <td>@crop.CropCategory</td>
+            <td>@crop.GrowthStages.Count</td>
+            <td class="text-end">
+                <a asp-action="Details" asp-route-id="@crop.CropId">Details</a> |
+                <a asp-action="Edit" asp-route-id="@crop.CropId">Edit</a>
+            </td>
+        </tr>
+    }
+    </tbody>
+</table>

@@ -20,7 +20,7 @@ namespace ZoneSync.Web.ViewModels
         public DateTime PlantingDate { get; set; } = DateTime.Today;
 
         // دول اللي أنت عرفتهم في الـ Controller بتاعك
-        public SelectList ZonesList { get; set; }
-        public SelectList CropsList { get; set; }
+        public SelectList? ZonesList { get; set; }
+        public SelectList? CropsList { get; set; }
     }
 }

@@ -1,0 +1,46 @@
+@model ZoneSync.Core.Entities.CropPlanModule.CropPlan
+
+@{
+    ViewData["Title"] = "Crop Plan Details";
+}
+
+<h1>Crop Plan Details</h1>
+<dl class="row">
+    <dt class="col-sm-3">Crop</dt>
+    <dd class="col-sm-9">@Model.Crop?.CropName</dd>
+    <dt class="col-sm-3">Zone</dt>
+    <dd class="col-sm-9">@Model.Zone?.ZoneName</dd>
+    <dt class="col-sm-3">Planting Date</dt>
+    <dd class="col-sm-9">@Model.PlantingDate.ToShortDateString()</dd>
+    <dt class="col-sm-3">Predicted Harvest</dt>
+    <dd class="col-sm-9">@Model.PredictedHarvestTime.ToShortDateString()</dd>
+</dl>
+
+<h2>Stages and Requirements</h2>
+@foreach (var stage in (Model.Crop?.GrowthStages ?? Enumerable.Empty<ZoneSync.Core.Entities.GrowthStageModule.GrowthStage>()).OrderBy(s => s.StageOrder))
+{
+    <div class="border rounded p-3 mb-3">
+        <h4>@stage.StageName (@stage.StageDuration days)</h4>
+        <table class="table table-sm">
+            <thead>
+                <tr>
+                    <th>Requirement</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Period</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach (var req in stage.StageRequirements)
+            {
+                <tr>
+                    <td>@req.ReqName</td>
+                    <td>@req.MinValue</td>
+                    <td>@req.MaxValue</td>
+                    <td>@req.ApplicablePeriod</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+}

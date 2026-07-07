@@ -10,14 +10,13 @@ namespace ZoneSync.Core.Entities.GrowthStageModule
     public class GrowthStage
     {
         [Key]
-        public int Stage_ID { get; set; }
         public int StageId { get; set; }
         public int CropId { get; set; }
-        public string StageName { get; set; }
+        public string StageName { get; set; } = string.Empty;
         public int StageOrder { get; set; }
         public int StageDuration { get; set; } // Duration in days
 
-        public Crop Crop { get; set; }
+        public Crop? Crop { get; set; }
         public ICollection<StageRequirement> StageRequirements { get; set; } = new List<StageRequirement>();
 
     }

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using ZoneSync.Core.Data;
 using ZoneSync.Core.Entities.CropPlanModule;
 using ZoneSync.Core.Entities.FarmZone;
+using ZoneSync.Service.Contracts;
 using ZoneSync.Web.ViewModels;
 
 namespace ZoneSync.Web.Controllers
@@ -13,10 +14,43 @@ namespace ZoneSync.Web.Controllers
     public class CropPlansController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ICropPlanService _cropPlanService;
 
-        public CropPlansController(ApplicationDbContext context)
+        public CropPlansController(ApplicationDbContext context, ICropPlanService cropPlanService)
         {
             _context = context;
+            _cropPlanService = cropPlanService;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var plans = await _context.CropPlans
+                .Include(p => p.Crop)
+                .Include(p => p.Zone)
+                .OrderByDescending(p => p.PlantingDate)
+                .ToListAsync();
+
+            return View(plans);
+        }
+
+        public async Task<IActionResult> Details(int id)
+        {
+            var plan = await _context.CropPlans
+                .Include(p => p.Crop)
+                    .ThenInclude(c => c!.GrowthStages.OrderBy(s => s.StageOrder))
+                    .ThenInclude(s => s.StageRequirements)
+                .Include(p => p.Zone)
+                .Include(p => p.StageInformations)
+                .Include(p => p.CheckRequirements)
+                    .ThenInclude(c => c.StageRequirement)
+                .FirstOrDefaultAsync(p => p.CropPlanId == id);
+
+            if (plan is null)
+            {
+                return NotFound();
+            }
+
+            return View(plan);
         }
 
         
@@ -39,15 +73,7 @@ namespace ZoneSync.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-               
-                var cropPlan = new CropPlan
-                {
-                    CropId = model.CropId,
-                    ZoneId = model.ZoneId,
-                    PlantingDate = model.PlantingDate
-                };
-
-                _context.CropPlans.Add(cropPlan);
+                var cropPlan = await _cropPlanService.CreateCropPlanAsync(model.CropId, model.ZoneId, model.PlantingDate);
 
                 
                 var zone = await _context.Zones.FindAsync(model.ZoneId);
@@ -59,7 +85,7 @@ namespace ZoneSync.Web.Controllers
                 await _context.SaveChangesAsync();
 
                
-                return Content("تم حفظ الخطة الزراعية بنجاح وتحديث حالة المنطقة!");
+                return RedirectToAction(nameof(Details), new { id = cropPlan.CropPlanId });
             }
 
             model.ZonesList = new SelectList(await _context.Zones.ToListAsync(), "ZoneId", "ZoneName");

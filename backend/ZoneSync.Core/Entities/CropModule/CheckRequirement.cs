@@ -18,7 +18,7 @@ namespace ZoneSync.Core.Entities
         public DateTime? NextCheckDate { get; set; }
         public bool IsSatisfied { get; set; }
 
-        public StageRequirement StageRequirement { get; set; }
-        public CropPlan CropPlan { get; set; }
+        public StageRequirement? StageRequirement { get; set; }
+        public CropPlan? CropPlan { get; set; }
     }
 }

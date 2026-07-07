@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ZoneSync.Core.Data;
 using ZoneSync.Core.Entities.Identity;
 using ZoneSync.Service.Contracts;
+using ZoneSync.Service.Modules.CropModule;
 using ZoneSync.Service.Modules.FarmZone;
 using ZoneSync.Service.Modules.Identity;
 
@@ -32,8 +33,7 @@ builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IFarmZoneService, FarmZoneService>();
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddScoped<ICropPlanService, CropPlanService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

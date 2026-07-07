@@ -1,0 +1,22 @@
+@model ZoneSync.Core.Entities.CropModule.Crop
+
+<div class="col-md-6">
+    <label asp-for="CropName" class="form-label"></label>
+    <input asp-for="CropName" class="form-control" />
+    <span asp-validation-for="CropName" class="text-danger"></span>
+</div>
+<div class="col-md-6">
+    <label asp-for="CropSeason" class="form-label"></label>
+    <input asp-for="CropSeason" class="form-control" />
+    <span asp-validation-for="CropSeason" class="text-danger"></span>
+</div>
+<div class="col-md-6">
+    <label asp-for="CropCategory" class="form-label"></label>
+    <input asp-for="CropCategory" class="form-control" />
+    <span asp-validation-for="CropCategory" class="text-danger"></span>
+</div>
+<div class="col-md-6">
+    <label asp-for="IrrigationType" class="form-label"></label>
+    <input asp-for="IrrigationType" class="form-control" />
+    <span asp-validation-for="IrrigationType" class="text-danger"></span>
+</div>

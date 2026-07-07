@@ -41,6 +41,12 @@ namespace ZoneSync.Service.Modules.CropModule
         public void CalculateIsSatisfied(CheckRequirement checkReq)
         {
             var req = checkReq.StageRequirement;
+            if (req is null)
+            {
+                checkReq.IsSatisfied = false;
+                return;
+            }
+
             checkReq.IsSatisfied = checkReq.CheckedValue >= req.MinValue && checkReq.CheckedValue <= req.MaxValue;
         }
     }

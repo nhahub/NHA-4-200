@@ -1,0 +1,14 @@
+@model ZoneSync.Core.Entities.CropModule.Crop
+
+@{
+    ViewData["Title"] = "Create Crop";
+}
+
+<h1>Create Crop</h1>
+<form asp-action="Create" method="post" class="row g-3">
+    <partial name="_CropForm" model="Model" />
+    <div class="col-12">
+        <button type="submit" class="btn btn-success">Create</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
+</form>

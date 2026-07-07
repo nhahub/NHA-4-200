@@ -1,0 +1,18 @@
+@model ZoneSync.Core.Entities.GrowthStageModule.GrowthStage
+
+<div class="col-md-6">
+    <label asp-for="CropId" class="form-label">Crop</label>
+    <select asp-for="CropId" asp-items="ViewBag.Crops" class="form-select"></select>
+</div>
+<div class="col-md-6">
+    <label asp-for="StageName" class="form-label"></label>
+    <input asp-for="StageName" class="form-control" />
+</div>
+<div class="col-md-6">
+    <label asp-for="StageOrder" class="form-label"></label>
+    <input asp-for="StageOrder" class="form-control" />
+</div>
+<div class="col-md-6">
+    <label asp-for="StageDuration" class="form-label"></label>
+    <input asp-for="StageDuration" class="form-control" />
+</div>

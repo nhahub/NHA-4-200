@@ -22,18 +22,15 @@ namespace ZoneSync.Core.Entities.StageInformationModule
 
         public DateTime? ActualStartDate { get; set; }
         public DateTime? ActualEndDate { get; set; }
-        public string DelayDescription { get; set; }
+        public string? DelayDescription { get; set; }
 
-        public string StageStatus { get; set; }
+        public string StageStatus { get; set; } = string.Empty;
 
         [ForeignKey("StageId")]
-        public GrowthStage GrowthStage { get; set; }
+        public GrowthStage? GrowthStage { get; set; }
 
         [ForeignKey("CropPlanId")]
-        public CropPlan CropPlan { get; set; }
-        public string StageName
-        {
-            get; set;
-        }
+        public CropPlan? CropPlan { get; set; }
+        public string StageName { get; set; } = string.Empty;
     }
 }
