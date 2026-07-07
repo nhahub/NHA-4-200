@@ -1,0 +1,40 @@
+@model ZoneSync.Web.ViewModels.FarmZone.ZoneDetailsViewModel
+
+@{
+    ViewData["Title"] = "Zone Details";
+}
+
+<h1>@Model.ZoneName</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Farm</dt>
+    <dd class="col-sm-9">@Model.FarmName</dd>
+
+    <dt class="col-sm-3">Area</dt>
+    <dd class="col-sm-9">@Model.ZoneArea</dd>
+
+    <dt class="col-sm-3">Status</dt>
+    <dd class="col-sm-9">@Model.ZoneStatus</dd>
+
+    <dt class="col-sm-3">Supervisor</dt>
+    <dd class="col-sm-9">@(Model.SupervisorName ?? "None assigned")</dd>
+
+    <dt class="col-sm-3">Assigned Users</dt>
+    <dd class="col-sm-9">
+        @if (!Model.AssignedUserNames.Any())
+        {
+            <span>None assigned</span>
+        }
+        else
+        {
+            <ul>
+                @foreach (var name in Model.AssignedUserNames)
+                {
+                    <li>@name</li>
+                }
+            </ul>
+        }
+    </dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.ZoneId" class="btn btn-secondary">Edit Zone</a>

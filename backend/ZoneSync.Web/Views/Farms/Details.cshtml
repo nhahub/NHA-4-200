@@ -1,0 +1,58 @@
+@model ZoneSync.Core.Entities.FarmZone.Farm
+
+@{
+    ViewData["Title"] = "Farm Details";
+    var zones = ViewBag.Zones as List<ZoneSync.Core.Entities.FarmZone.Zone>;
+}
+
+<h1>@Model.FarmName</h1>
+
+<dl class="row">
+    <dt class="col-sm-3">Location</dt>
+    <dd class="col-sm-9">@Model.FarmLocation</dd>
+
+    <dt class="col-sm-3">Soil Type</dt>
+    <dd class="col-sm-9">@Model.SoilType</dd>
+
+    <dt class="col-sm-3">Total Area</dt>
+    <dd class="col-sm-9">@Model.TotalArea</dd>
+
+    <dt class="col-sm-3">Number of Zones</dt>
+    <dd class="col-sm-9">@Model.NoOfZones</dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.FarmId" class="btn btn-secondary">Edit Farm</a>
+<a asp-controller="Zones" asp-action="Create" asp-route-farmId="@Model.FarmId" class="btn btn-primary">Add Zone</a>
+
+<h2 class="mt-4">Zones</h2>
+
+@if (zones is null || !zones.Any())
+{
+    <p>No zones yet.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Area</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var zone in zones)
+            {
+                <tr>
+                    <td>@zone.ZoneName</td>
+                    <td>@zone.ZoneArea</td>
+                    <td>@zone.ZoneStatus</td>
+                    <td>
+                        <a asp-controller="Zones" asp-action="Details" asp-route-id="@zone.ZoneId">View</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

@@ -1,0 +1,27 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Security.Policy;
+using ZoneSync.Core.Entities.Identity;
+
+namespace ZoneSync.Core.Entities.FarmZone
+{
+    public class Farm
+    {
+        public int FarmId { get; set; }
+
+        public int OwnerUserId { get; set; }
+        public UserProfile OwnerUser { get; set; }
+
+        public string FarmName { get; set; }
+        public string FarmLocation { get; set; }
+        public string SoilType { get; set; }
+
+        public decimal TotalArea { get; set; }
+        public int NoOfZones { get; set; }
+
+        public bool IsDeleted { get; set; }
+        public DateTime? SoftDeletedAt { get; set; }
+
+        public ICollection<Zone> Zones { get; set; } = new List<Zone>();
+    }
+}
