@@ -6,6 +6,7 @@ using ZoneSync.Core.Entities.CropModule;
 using ZoneSync.Core.Entities.CropPlanModule;
 using ZoneSync.Core.Entities.GrowthStageModule;
 using ZoneSync.Core.Entities.Identity;
+using ZoneSync.Core.Entities.Sensors;
 using ZoneSync.Core.Entities.StageInformationModule;
 using ZoneSync.Core.Entities.StageRequirementModule;
 
@@ -34,6 +35,12 @@ namespace ZoneSync.Core.Data
         public DbSet<CropPlan> CropPlans => Set<CropPlan>();
         public DbSet<StageInformation> StageInformations => Set<StageInformation>();
         public DbSet<CheckRequirement> CheckRequirements => Set<CheckRequirement>();
+        public DbSet<MeasurementType> MeasurementTypes => Set<MeasurementType>();
+        public DbSet<SensorModel> SensorModels => Set<SensorModel>();
+        public DbSet<SensorModelMeasurementType> SensorModelMeasurementTypes => Set<SensorModelMeasurementType>();
+        public DbSet<SensorInstance> SensorInstances => Set<SensorInstance>();
+        public DbSet<ZoneConfiguration> ZoneConfigurations => Set<ZoneConfiguration>();
+        public DbSet<SensorReading> SensorReadings => Set<SensorReading>();
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -385,6 +392,137 @@ namespace ZoneSync.Core.Data
                     .HasForeignKey(e => e.UserId)
                     .OnDelete(DeleteBehavior.Restrict);
             });
+
+            #endregion
+
+            #region Sensors
+
+            modelBuilder.Entity<MeasurementType>(entity =>
+            {
+                entity.ToTable("MeasurementTypes");
+                entity.HasKey(measurementType => measurementType.Id);
+
+                entity.Property(measurementType => measurementType.Name)
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(measurementType => measurementType.Unit)
+                    .HasMaxLength(20)
+                    .IsRequired();
+            });
+
+            modelBuilder.Entity<SensorModel>(entity =>
+            {
+                entity.ToTable("SensorModels");
+                entity.HasKey(sensorModel => sensorModel.Id);
+
+                entity.Property(sensorModel => sensorModel.Type)
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(sensorModel => sensorModel.ModelName)
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(sensorModel => sensorModel.OutputType)
+                    .HasMaxLength(50)
+                    .IsRequired();
+            });
+
+            modelBuilder.Entity<SensorModelMeasurementType>(entity =>
+            {
+                entity.ToTable("SensorModelMeasurementTypes");
+                entity.HasKey(link => new { link.SensorModelId, link.MeasurementTypeId });
+
+                entity.HasOne(link => link.SensorModel)
+                    .WithMany(sensorModel => sensorModel.SensorModelMeasurementTypes)
+                    .HasForeignKey(link => link.SensorModelId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(link => link.MeasurementType)
+                    .WithMany(measurementType => measurementType.SensorModelMeasurementTypes)
+                    .HasForeignKey(link => link.MeasurementTypeId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<SensorInstance>(entity =>
+            {
+                entity.ToTable("SensorInstances");
+                entity.HasKey(sensorInstance => sensorInstance.Id);
+
+                entity.Property(sensorInstance => sensorInstance.SerialNumber)
+                    .HasMaxLength(100)
+                    .IsRequired();
+
+                entity.Property(sensorInstance => sensorInstance.Status)
+                    .HasConversion<string>()
+                    .HasMaxLength(50);
+
+                entity.HasIndex(sensorInstance => sensorInstance.SerialNumber)
+                    .IsUnique();
+
+                entity.HasOne(sensorInstance => sensorInstance.SensorModel)
+                    .WithMany(sensorModel => sensorModel.SensorInstances)
+                    .HasForeignKey(sensorInstance => sensorInstance.SensorModelId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<ZoneConfiguration>(entity =>
+            {
+                entity.ToTable("ZoneConfigurations");
+                entity.HasKey(configuration => configuration.Id);
+
+                entity.Property(configuration => configuration.ConfiguredAt)
+                    .HasDefaultValueSql("GETDATE()");
+
+                entity.HasOne(configuration => configuration.Zone)
+                    .WithMany()
+                    .HasForeignKey(configuration => configuration.ZoneId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(configuration => configuration.SensorInstance)
+                    .WithMany(sensorInstance => sensorInstance.ZoneConfigurations)
+                    .HasForeignKey(configuration => configuration.SensorInstanceId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(configuration => configuration.ConfiguredByUser)
+                    .WithMany()
+                    .HasForeignKey(configuration => configuration.ConfiguredByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<SensorReading>(entity =>
+            {
+                entity.ToTable("SensorReadings");
+                entity.HasKey(reading => reading.Id);
+
+                entity.Property(reading => reading.ReadingValue)
+                    .HasPrecision(10, 2);
+
+                entity.HasOne(reading => reading.SensorInstance)
+                    .WithMany(sensorInstance => sensorInstance.SensorReadings)
+                    .HasForeignKey(reading => reading.SensorInstanceId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(reading => reading.MeasurementType)
+                    .WithMany(measurementType => measurementType.SensorReadings)
+                    .HasForeignKey(reading => reading.MeasurementTypeId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<MeasurementType>().HasData(
+                new MeasurementType { Id = 1, Name = "Soil moisture", Unit = "%" },
+                new MeasurementType { Id = 2, Name = "Temperature", Unit = "C" },
+                new MeasurementType { Id = 3, Name = "Water level", Unit = "%" });
+
+            modelBuilder.Entity<SensorModel>().HasData(
+                new SensorModel { Id = 1, Type = "Soil", ModelName = "SM-100", OutputType = "Digital" },
+                new SensorModel { Id = 2, Type = "Climate", ModelName = "TH-200", OutputType = "Digital" });
+
+            modelBuilder.Entity<SensorModelMeasurementType>().HasData(
+                new SensorModelMeasurementType { SensorModelId = 1, MeasurementTypeId = 1 },
+                new SensorModelMeasurementType { SensorModelId = 1, MeasurementTypeId = 3 },
+                new SensorModelMeasurementType { SensorModelId = 2, MeasurementTypeId = 2 });
 
             #endregion
         }

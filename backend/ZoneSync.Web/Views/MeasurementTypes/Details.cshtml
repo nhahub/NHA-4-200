@@ -1,0 +1,14 @@
+@model ZoneSync.Core.Entities.Sensors.MeasurementType
+
+@{
+    ViewData["Title"] = "Measurement Type Details";
+}
+
+<h1>@Model.Name</h1>
+<dl class="row">
+    <dt class="col-sm-3">Unit</dt>
+    <dd class="col-sm-9">@Model.Unit</dd>
+</dl>
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+<a asp-action="Index" class="btn btn-secondary">Back</a>

@@ -1,0 +1,13 @@
+@model ZoneSync.Core.Entities.Sensors.MeasurementType
+
+<input type="hidden" asp-for="Id" />
+<div class="col-md-6">
+    <label asp-for="Name" class="form-label"></label>
+    <input asp-for="Name" class="form-control" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+</div>
+<div class="col-md-6">
+    <label asp-for="Unit" class="form-label"></label>
+    <input asp-for="Unit" class="form-control" />
+    <span asp-validation-for="Unit" class="text-danger"></span>
+</div>

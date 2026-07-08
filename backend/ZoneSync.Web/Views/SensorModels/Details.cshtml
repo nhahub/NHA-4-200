@@ -1,0 +1,37 @@
+@model ZoneSync.Core.Entities.Sensors.SensorModel
+
+@{
+    ViewData["Title"] = "Sensor Model Details";
+}
+
+<h1>@Model.ModelName</h1>
+<dl class="row">
+    <dt class="col-sm-3">Type</dt>
+    <dd class="col-sm-9">@Model.Type</dd>
+    <dt class="col-sm-3">Output Type</dt>
+    <dd class="col-sm-9">@Model.OutputType</dd>
+    <dt class="col-sm-3">Measurement Types</dt>
+    <dd class="col-sm-9">@string.Join(", ", Model.SensorModelMeasurementTypes.Select(link => $"{link.MeasurementType?.Name} ({link.MeasurementType?.Unit})"))</dd>
+</dl>
+
+<h3>Sensor Instances</h3>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th>Serial Number</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var instance in Model.SensorInstances)
+    {
+        <tr>
+            <td>@instance.SerialNumber</td>
+            <td>@instance.Status</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+<a asp-action="Index" class="btn btn-secondary">Back</a>

@@ -1,0 +1,20 @@
+@model ZoneSync.Web.ViewModels.Sensors.SensorInstanceFormViewModel
+
+<input type="hidden" asp-for="Id" />
+<div class="col-md-4">
+    <label asp-for="SensorModelId" class="form-label"></label>
+    <select asp-for="SensorModelId" asp-items="Model.SensorModelsList" class="form-select">
+        <option value="">-- Select a model --</option>
+    </select>
+    <span asp-validation-for="SensorModelId" class="text-danger"></span>
+</div>
+<div class="col-md-4">
+    <label asp-for="SerialNumber" class="form-label"></label>
+    <input asp-for="SerialNumber" class="form-control" />
+    <span asp-validation-for="SerialNumber" class="text-danger"></span>
+</div>
+<div class="col-md-4">
+    <label asp-for="Status" class="form-label"></label>
+    <select asp-for="Status" asp-items="Html.GetEnumSelectList<ZoneSync.Core.Enums.SensorStatus>()" class="form-select"></select>
+    <span asp-validation-for="Status" class="text-danger"></span>
+</div>

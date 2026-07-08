@@ -1,0 +1,61 @@
+@model ZoneSync.Core.Entities.Sensors.SensorInstance
+
+@{
+    ViewData["Title"] = "Sensor Instance Details";
+}
+
+<h1>@Model.SerialNumber</h1>
+<dl class="row">
+    <dt class="col-sm-3">Model</dt>
+    <dd class="col-sm-9">@Model.SensorModel?.ModelName</dd>
+    <dt class="col-sm-3">Status</dt>
+    <dd class="col-sm-9">@Model.Status</dd>
+    <dt class="col-sm-3">Supported Measurements</dt>
+    <dd class="col-sm-9">@string.Join(", ", Model.SensorModel?.SensorModelMeasurementTypes.Select(link => link.MeasurementType?.Name) ?? Enumerable.Empty<string>())</dd>
+</dl>
+
+<h3>Zone Configurations</h3>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th>Zone</th>
+            <th>Configured At</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var configuration in Model.ZoneConfigurations)
+    {
+        <tr>
+            <td>@configuration.Zone?.ZoneName</td>
+            <td>@configuration.ConfiguredAt</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<h3>Recent Readings</h3>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <th>Measurement</th>
+            <th>Value</th>
+            <th>Date</th>
+            <th>Time</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var reading in Model.SensorReadings.Take(10))
+    {
+        <tr>
+            <td>@reading.MeasurementType?.Name</td>
+            <td>@reading.ReadingValue @reading.MeasurementType?.Unit</td>
+            <td>@reading.ReadingDate.ToShortDateString()</td>
+            <td>@reading.ReadingTime</td>
+        </tr>
+    }
+    </tbody>
+</table>
+
+<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+<a asp-controller="SensorReadings" asp-action="Create" class="btn btn-success">Add Reading</a>
+<a asp-action="Index" class="btn btn-secondary">Back</a>

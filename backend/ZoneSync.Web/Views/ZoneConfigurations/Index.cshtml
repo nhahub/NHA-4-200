@@ -1,0 +1,34 @@
+@model IEnumerable<ZoneSync.Core.Entities.Sensors.ZoneConfiguration>
+
+@{
+    ViewData["Title"] = "Zone Sensor Configurations";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Zone Sensor Configurations</h1>
+    <a asp-action="Create" class="btn btn-success">Configure Sensor</a>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Zone</th>
+            <th>Sensor</th>
+            <th>Model</th>
+            <th>Configured By</th>
+            <th>Configured At</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Zone?.ZoneName</td>
+            <td>@item.SensorInstance?.SerialNumber</td>
+            <td>@item.SensorInstance?.SensorModel?.ModelName</td>
+            <td>@item.ConfiguredByUser?.UserFirstName @item.ConfiguredByUser?.UserLastName</td>
+            <td>@item.ConfiguredAt</td>
+        </tr>
+    }
+    </tbody>
+</table>
