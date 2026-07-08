@@ -1,0 +1,54 @@
+@model IEnumerable<ZoneSync.Core.Entities.Sensors.SensorReading>
+
+@{
+    ViewData["Title"] = "Sensor Readings";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Sensor Readings</h1>
+    <a asp-action="Create" class="btn btn-success">Add Reading</a>
+</div>
+
+<form asp-action="Index" method="get" class="row g-3 mb-4">
+    <div class="col-md-5">
+        <label class="form-label">Sensor</label>
+        <select name="sensorInstanceId" asp-items="ViewBag.SensorInstancesList" class="form-select">
+            <option value="">All sensors</option>
+        </select>
+    </div>
+    <div class="col-md-5">
+        <label class="form-label">Zone</label>
+        <select name="zoneId" asp-items="ViewBag.ZonesList" class="form-select">
+            <option value="">All zones</option>
+        </select>
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Filter</button>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Sensor</th>
+            <th>Model</th>
+            <th>Measurement</th>
+            <th>Value</th>
+            <th>Date</th>
+            <th>Time</th>
+        </tr>
+    </thead>
+    <tbody>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.SensorInstance?.SerialNumber</td>
+            <td>@item.SensorInstance?.SensorModel?.ModelName</td>
+            <td>@item.MeasurementType?.Name</td>
+            <td>@item.ReadingValue @item.MeasurementType?.Unit</td>
+            <td>@item.ReadingDate.ToShortDateString()</td>
+            <td>@item.ReadingTime</td>
+        </tr>
+    }
+    </tbody>
+</table>

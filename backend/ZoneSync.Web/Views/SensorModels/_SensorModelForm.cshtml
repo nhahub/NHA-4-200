@@ -1,0 +1,23 @@
+@model ZoneSync.Web.ViewModels.Sensors.SensorModelFormViewModel
+
+<input type="hidden" asp-for="Id" />
+<div class="col-md-4">
+    <label asp-for="Type" class="form-label"></label>
+    <input asp-for="Type" class="form-control" />
+    <span asp-validation-for="Type" class="text-danger"></span>
+</div>
+<div class="col-md-4">
+    <label asp-for="ModelName" class="form-label"></label>
+    <input asp-for="ModelName" class="form-control" />
+    <span asp-validation-for="ModelName" class="text-danger"></span>
+</div>
+<div class="col-md-4">
+    <label asp-for="OutputType" class="form-label"></label>
+    <input asp-for="OutputType" class="form-control" />
+    <span asp-validation-for="OutputType" class="text-danger"></span>
+</div>
+<div class="col-12">
+    <label asp-for="SelectedMeasurementTypeIds" class="form-label"></label>
+    <select asp-for="SelectedMeasurementTypeIds" asp-items="Model.MeasurementTypesList" class="form-select" multiple></select>
+    <span asp-validation-for="SelectedMeasurementTypeIds" class="text-danger"></span>
+</div>
