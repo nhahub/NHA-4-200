@@ -16,11 +16,11 @@
 @if (Model.AlertStatus == ZoneSync.Core.Enums.AlertStatus.UnderReview)
 {
     <form asp-action="Confirm" asp-route-id="@Model.AlertId" method="post" class="d-inline">
-        <input type="hidden" name="confirmedByUserId" value="1" />
+        <input type="hidden" name="confirmedByUserId" value="7" />
         <button class="btn btn-success">Confirm</button>
     </form>
     <form asp-action="Discard" asp-route-id="@Model.AlertId" method="post" class="d-inline">
-        <input type="hidden" name="confirmedByUserId" value="1" />
+        <input type="hidden" name="confirmedByUserId" value="7" />
         <button class="btn btn-secondary">Discard</button>
     </form>
 }
