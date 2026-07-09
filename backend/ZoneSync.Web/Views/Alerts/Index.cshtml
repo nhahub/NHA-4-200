@@ -1,0 +1,29 @@
+@model List<ZoneSync.Core.Entities.AlertsTasks.Alert>
+@{
+    ViewData["Title"] = "Alerts";
+    var zone = ViewBag.Zone as ZoneSync.Core.Entities.FarmZone.Zone;
+}
+
+<h2>Alerts - Zone: @zone?.ZoneName</h2>
+<a asp-action="Create" asp-route-zoneId="@zone?.ZoneId" class="btn btn-primary mb-3">+ New Manual Alert</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>#</th><th>Type</th><th>Severity</th><th>Status</th><th>Firing Date</th><th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var a in Model)
+        {
+            <tr>
+                <td>@a.AlertId</td>
+                <td>@a.AlertType</td>
+                <td>@a.AlertSeverity</td>
+                <td>@a.AlertStatus</td>
+                <td>@a.FiringDate.ToString("g")</td>
+                <td><a asp-action="Details" asp-route-id="@a.AlertId">Details</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

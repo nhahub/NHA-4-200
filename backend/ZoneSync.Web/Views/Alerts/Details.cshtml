@@ -1,0 +1,39 @@
+@model ZoneSync.Core.Entities.AlertsTasks.Alert
+@{ ViewData["Title"] = "Alert Details"; }
+
+<h2>Alert #@Model.AlertId</h2>
+
+<dl class="row">
+    <dt class="col-sm-3">Zone</dt><dd class="col-sm-9">@Model.Zone?.ZoneName</dd>
+    <dt class="col-sm-3">Type</dt><dd class="col-sm-9">@Model.AlertType</dd>
+    <dt class="col-sm-3">Severity</dt><dd class="col-sm-9">@Model.AlertSeverity</dd>
+    <dt class="col-sm-3">Status</dt><dd class="col-sm-9">@Model.AlertStatus</dd>
+    <dt class="col-sm-3">Firing Date</dt><dd class="col-sm-9">@Model.FiringDate.ToString("g")</dd>
+    <dt class="col-sm-3">Created By</dt><dd class="col-sm-9">@Model.CreatedByUser?.UserFirstName</dd>
+    <dt class="col-sm-3">Confirmed By</dt><dd class="col-sm-9">@Model.ConfirmedByUser?.UserFirstName</dd>
+</dl>
+
+@if (Model.AlertStatus == ZoneSync.Core.Enums.AlertStatus.UnderReview)
+{
+    <form asp-action="Confirm" asp-route-id="@Model.AlertId" method="post" class="d-inline">
+        <input type="hidden" name="confirmedByUserId" value="1" />
+        <button class="btn btn-success">Confirm</button>
+    </form>
+    <form asp-action="Discard" asp-route-id="@Model.AlertId" method="post" class="d-inline">
+        <input type="hidden" name="confirmedByUserId" value="1" />
+        <button class="btn btn-secondary">Discard</button>
+    </form>
+}
+
+@if (Model.AlertStatus == ZoneSync.Core.Enums.AlertStatus.Confirmed && !Model.Tasks.Any())
+{
+    <a asp-controller="Tasks" asp-action="CreateFromAlert" asp-route-alertId="@Model.AlertId" class="btn btn-primary">Create Task from this Alert</a>
+}
+
+<h4 class="mt-4">Related Tasks</h4>
+<ul>
+    @foreach (var t in Model.Tasks)
+    {
+        <li><a asp-controller="Tasks" asp-action="Details" asp-route-id="@t.TaskId">@t.TaskName (@t.TaskStatus)</a></li>
+    }
+</ul>

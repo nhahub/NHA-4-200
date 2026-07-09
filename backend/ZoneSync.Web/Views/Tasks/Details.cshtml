@@ -1,0 +1,94 @@
+@model ZoneSync.Core.Entities.AlertsTasks.TaskItem
+@{
+    ViewData["Title"] = "Task Details";
+    var members = ViewBag.FarmMembers as List<(int UserId, string FullName, ZoneSync.Core.Enums.FarmRoleType RoleType)>;
+}
+
+<h2>Task #@Model.TaskId - @Model.TaskName</h2>
+
+<dl class="row">
+    <dt class="col-sm-3">Zone</dt><dd class="col-sm-9">@Model.Zone?.ZoneName</dd>
+    <dt class="col-sm-3">Type</dt><dd class="col-sm-9">@Model.TaskType</dd>
+    <dt class="col-sm-3">Priority</dt><dd class="col-sm-9">@Model.TaskPriority</dd>
+    <dt class="col-sm-3">Status</dt><dd class="col-sm-9">@Model.TaskStatus</dd>
+    <dt class="col-sm-3">Due Date</dt><dd class="col-sm-9">@Model.DueDate</dd>
+    <dt class="col-sm-3">Description</dt><dd class="col-sm-9">@Model.TaskDesc</dd>
+    <dt class="col-sm-3">Related Alert</dt>
+    <dd class="col-sm-9">
+        @if (Model.Alert != null)
+        {
+            <a asp-controller="Alerts" asp-action="Details" asp-route-id="@Model.Alert.AlertId">Alert #@Model.Alert.AlertId</a>
+        }
+        else { <span>Manual Task</span> }
+    </dd>
+</dl>
+
+<h4>Assigned Users</h4>
+<ul>
+    @foreach (var au in Model.AssignedUsers)
+    {
+        <li>@au.User?.UserFirstName @au.User?.UserLastName</li>
+    }
+</ul>
+
+<form asp-action="AssignUser" method="post" class="d-flex gap-2 mb-4">
+    <input type="hidden" name="taskId" value="@Model.TaskId" />
+    <select name="userId" class="form-control" style="max-width:250px">
+        @if (members != null)
+        {
+            foreach (var m in members)
+            {
+                <option value="@m.UserId">@m.FullName (@m.RoleType)</option>
+            }
+        }
+    </select>
+    <button class="btn btn-outline-primary">Assign</button>
+</form>
+
+<div class="mb-4">
+    @if (Model.TaskStatus == ZoneSync.Core.Enums.TaskStatus.Pending)
+    {
+        <form asp-action="Start" asp-route-id="@Model.TaskId" method="post" class="d-inline">
+            <button class="btn btn-info">Start</button>
+        </form>
+    }
+    @if (Model.TaskStatus == ZoneSync.Core.Enums.TaskStatus.InProgress)
+    {
+        <form asp-action="Complete" asp-route-id="@Model.TaskId" method="post" class="d-inline">
+            <button class="btn btn-success">Complete</button>
+        </form>
+        <form asp-action="Fail" asp-route-id="@Model.TaskId" method="post" class="d-inline">
+            <button class="btn btn-danger">Fail</button>
+        </form>
+    }
+    @if (Model.TaskStatus == ZoneSync.Core.Enums.TaskStatus.Pending)
+    {
+        <form asp-action="Skip" asp-route-id="@Model.TaskId" method="post" class="d-inline">
+            <button class="btn btn-secondary">Skip</button>
+        </form>
+    }
+</div>
+
+<h4>Action Log</h4>
+@if (Model.ActionLog != null)
+{
+    <dl class="row">
+        <dt class="col-sm-3">Quantity Type</dt><dd class="col-sm-9">@Model.ActionLog.QuantityType</dd>
+        <dt class="col-sm-3">Quantity Desc</dt><dd class="col-sm-9">@Model.ActionLog.QuantityDesc</dd>
+        <dt class="col-sm-3">Executed At</dt><dd class="col-sm-9">@Model.ActionLog.ExecutedAt</dd>
+        <dt class="col-sm-3">Result</dt><dd class="col-sm-9">@Model.ActionLog.Result</dd>
+        <dt class="col-sm-3">Notes</dt><dd class="col-sm-9">@Model.ActionLog.Notes</dd>
+    </dl>
+}
+else
+{
+    <form asp-action="AddActionLog" method="post">
+        <input type="hidden" name="taskId" value="@Model.TaskId" />
+        <div class="mb-2"><label>Executed By (User Id)</label><input name="executedByUserId" class="form-control" /></div>
+        <div class="mb-2"><label>Quantity Type</label><input name="quantityType" class="form-control" placeholder="e.g. Water, Fertilizer" /></div>
+        <div class="mb-2"><label>Quantity Desc</label><input name="quantityDesc" class="form-control" /></div>
+        <div class="mb-2"><label>Result</label><input name="result" class="form-control" /></div>
+        <div class="mb-2"><label>Notes</label><input name="notes" class="form-control" /></div>
+        <button class="btn btn-success">Save Action Log</button>
+    </form>
+}
