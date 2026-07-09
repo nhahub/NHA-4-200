@@ -1,0 +1,26 @@
+@model ZoneSync.Web.Models.AlertCreateViewModel
+@{ ViewData["Title"] = "New Alert"; }
+
+<h2>New Manual Alert</h2>
+
+<form asp-action="Create" method="post">
+    <input type="hidden" asp-for="ZoneId" />
+
+    <div class="mb-3">
+        <label>Crop Plan Id (optional)</label>
+        <input asp-for="CropPlanId" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Severity</label>
+        <select asp-for="AlertSeverity" asp-items="Html.GetEnumSelectList<ZoneSync.Core.Enums.AlertSeverity>()" class="form-control"></select>
+    </div>
+
+    <div class="mb-3">
+        <label>Created By (User Id)</label>
+        <input asp-for="CreatedByUserId" class="form-control" />
+        <span asp-validation-for="CreatedByUserId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Create</button>
+</form>

@@ -9,6 +9,7 @@ using ZoneSync.Core.Entities.Identity;
 using ZoneSync.Core.Entities.Sensors;
 using ZoneSync.Core.Entities.StageInformationModule;
 using ZoneSync.Core.Entities.StageRequirementModule;
+using ZoneSync.Core.Entities.AlertsTasks;
 
 namespace ZoneSync.Core.Data
 {
@@ -41,7 +42,10 @@ namespace ZoneSync.Core.Data
         public DbSet<SensorInstance> SensorInstances => Set<SensorInstance>();
         public DbSet<ZoneConfiguration> ZoneConfigurations => Set<ZoneConfiguration>();
         public DbSet<SensorReading> SensorReadings => Set<SensorReading>();
-
+public DbSet<Alert> Alerts => Set<Alert>();
+public DbSet<TaskItem> Tasks => Set<TaskItem>();
+public DbSet<TaskUser> TaskUsers => Set<TaskUser>();
+public DbSet<ActionLog> ActionLogs => Set<ActionLog>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -523,6 +527,168 @@ namespace ZoneSync.Core.Data
                 new SensorModelMeasurementType { SensorModelId = 1, MeasurementTypeId = 1 },
                 new SensorModelMeasurementType { SensorModelId = 1, MeasurementTypeId = 3 },
                 new SensorModelMeasurementType { SensorModelId = 2, MeasurementTypeId = 2 });
+
+            #endregion
+
+            #region AlertsTasks
+
+            modelBuilder.Entity<Alert>(entity =>
+            {
+                entity.ToTable("Alert");
+                entity.HasKey(a => a.AlertId);
+
+                entity.Property(a => a.AlertType)
+                    .HasConversion<string>()
+                    .HasMaxLength(50);
+
+                entity.Property(a => a.AlertSeverity)
+                    .HasConversion<string>()
+                    .HasMaxLength(50);
+
+                entity.Property(a => a.AlertStatus)
+                    .HasConversion<string>()
+                    .HasMaxLength(50);
+
+                entity.Property(a => a.FiringDate)
+                    .HasDefaultValueSql("GETDATE()");
+
+                entity.HasOne(a => a.Zone)
+                    .WithMany()
+                    .HasForeignKey(a => a.ZoneId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(a => a.CropPlan)
+                    .WithMany()
+                    .HasForeignKey(a => a.CropPlanId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
+
+                entity.HasOne(a => a.CheckRequirement)
+                    .WithMany()
+                    .HasForeignKey(a => a.CheckId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
+
+                entity.HasOne(a => a.StageRequirement)
+                    .WithMany()
+                    .HasForeignKey(a => a.RequirementId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
+
+                entity.HasOne(a => a.SensorInstance)
+                    .WithMany()
+                    .HasForeignKey(a => a.SensorInstanceId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
+
+                entity.HasOne(a => a.CreatedByUser)
+                    .WithMany()
+                    .HasForeignKey(a => a.CreatedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(a => a.ConfirmedByUser)
+                    .WithMany()
+                    .HasForeignKey(a => a.ConfirmedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
+            });
+
+            modelBuilder.Entity<TaskItem>(entity =>
+            {
+                entity.ToTable("Task", t =>
+                {
+                    t.HasCheckConstraint(
+                        "CHK_Task_AlertConsistency",
+                        "(TaskType = 'BasedOnAlert' AND AlertId IS NOT NULL) OR (TaskType = 'Manual' AND AlertId IS NULL)");
+                });
+
+                entity.HasKey(t => t.TaskId);
+
+                entity.Property(t => t.TaskName)
+                    .HasMaxLength(50)
+                    .IsRequired();
+
+                entity.Property(t => t.TaskStatus)
+                    .HasConversion<string>()
+                    .HasMaxLength(50);
+
+                entity.Property(t => t.TaskPriority)
+                    .HasConversion<string>()
+                    .HasMaxLength(50);
+
+                entity.Property(t => t.TaskType)
+                    .HasConversion<string>()
+                    .HasMaxLength(50);
+
+                entity.Property(t => t.CreatedAt)
+                    .HasDefaultValueSql("GETDATE()");
+
+                entity.HasOne(t => t.Zone)
+                    .WithMany()
+                    .HasForeignKey(t => t.ZoneId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(t => t.CropPlan)
+                    .WithMany()
+                    .HasForeignKey(t => t.CropPlanId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
+
+                entity.HasOne(t => t.Alert)
+                    .WithMany(a => a.Tasks)
+                    .HasForeignKey(t => t.AlertId)
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired(false);
+
+                entity.HasOne(t => t.CreatedByUser)
+                    .WithMany()
+                    .HasForeignKey(t => t.CreatedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<TaskUser>(entity =>
+            {
+                entity.ToTable("TaskUser");
+                entity.HasKey(tu => new { tu.TaskId, tu.UserId });
+
+                entity.Property(tu => tu.AssignedAt)
+                    .HasDefaultValueSql("GETDATE()");
+
+                entity.HasOne(tu => tu.Task)
+                    .WithMany(t => t.AssignedUsers)
+                    .HasForeignKey(tu => tu.TaskId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(tu => tu.User)
+                    .WithMany()
+                    .HasForeignKey(tu => tu.UserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            modelBuilder.Entity<ActionLog>(entity =>
+            {
+                entity.ToTable("ActionLog");
+                entity.HasKey(al => al.ActionLogId);
+
+                entity.Property(al => al.QuantityType)
+                    .HasMaxLength(50);
+
+                entity.Property(al => al.ExecutedAt)
+                    .HasDefaultValueSql("GETDATE()");
+
+                entity.HasOne(al => al.Task)
+                    .WithOne(t => t.ActionLog)
+                    .HasForeignKey<ActionLog>(al => al.TaskId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(al => al.TaskId)
+                    .IsUnique();
+
+                entity.HasOne(al => al.ExecutedByUser)
+                    .WithMany()
+                    .HasForeignKey(al => al.ExecutedByUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+            });
 
             #endregion
         }

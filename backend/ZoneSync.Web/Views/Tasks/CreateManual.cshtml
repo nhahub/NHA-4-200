@@ -1,0 +1,36 @@
+@model ZoneSync.Web.Models.TaskManualViewModel
+@{ ViewData["Title"] = "New Manual Task"; }
+
+<h2>New Manual Task</h2>
+
+<form asp-action="CreateManual" method="post">
+    <input type="hidden" asp-for="ZoneId" />
+
+    <div class="mb-3">
+        <label>Crop Plan Id (optional)</label>
+        <input asp-for="CropPlanId" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Task Name</label>
+        <input asp-for="TaskName" class="form-control" />
+        <span asp-validation-for="TaskName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label>Description</label>
+        <textarea asp-for="TaskDesc" class="form-control"></textarea>
+    </div>
+    <div class="mb-3">
+        <label>Priority</label>
+        <select asp-for="TaskPriority" asp-items="Html.GetEnumSelectList<ZoneSync.Core.Enums.TaskPriority>()" class="form-control"></select>
+    </div>
+    <div class="mb-3">
+        <label>Due Date</label>
+        <input asp-for="DueDate" type="date" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Created By (User Id)</label>
+        <input asp-for="CreatedByUserId" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-success">Create Task</button>
+</form>

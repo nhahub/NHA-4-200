@@ -7,6 +7,7 @@ using ZoneSync.Service.Modules.CropModule;
 using ZoneSync.Service.Modules.FarmZone;
 using ZoneSync.Service.Modules.Identity;
 using ZoneSync.Service.Modules.Sensors;
+using ZoneSync.Service.Modules.AlertsTasks;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IFarmZoneService, FarmZoneService>();
 builder.Services.AddScoped<ICropPlanService, CropPlanService>();
 builder.Services.AddScoped<ISensorService, SensorService>();
+builder.Services.AddScoped<IAlertService, AlertService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
