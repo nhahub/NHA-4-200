@@ -1,0 +1,257 @@
+@model FarmDashboardViewModel
+@{
+    ViewData["Title"] = $"{Model.FarmName} - Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>@Model.FarmName Dashboard</h1>
+    <div>
+        <a asp-controller="Farms" asp-action="Details" asp-route-id="@Model.FarmId" class="btn btn-outline-primary">Farm Details</a>
+        <a asp-controller="Dashboard" asp-action="ZoneDashboard" asp-route-zoneId="@Model.Zones.FirstOrDefault()?.ZoneId" class="btn btn-outline-info">Zone Dashboard</a>
+    </div>
+</div>
+
+<div class="row mb-2">
+    <div class="col-md-3">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">@Model.ActiveZonesCount</h5>
+                <p class="card-text">Active Zones</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-body">
+                <h5 class="card-title">@Model.UnderReviewAlertsCount</h5>
+                <p class="card-text">Alerts Under Review</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-danger mb-3">
+            <div class="card-body">
+                <h5 class="card-title">@Model.UrgentTasksCount</h5>
+                <p class="card-text">Urgent Tasks</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">@Model.PendingTasksCount</h5>
+                <p class="card-text">Pending Tasks</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Farm Information</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Location</dt>
+                    <dd class="col-sm-8">@Model.FarmLocation</dd>
+                    <dt class="col-sm-4">Soil Type</dt>
+                    <dd class="col-sm-8">@Model.SoilType</dd>
+                    <dt class="col-sm-4">Total Area</dt>
+                    <dd class="col-sm-8">@Model.TotalArea.ToString("N2")</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Average Readings</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.AverageReadings.Any())
+                {
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Measurement</th>
+                                <th>Average</th>
+                                <th>Unit</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var reading in Model.AverageReadings)
+                            {
+                                <tr>
+                                    <td>@reading.MeasurementName</td>
+                                    <td>@reading.AverageValue.ToString("N2")</td>
+                                    <td>@reading.Unit</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">No readings available</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5>Zones Overview</h5>
+                <a asp-controller="Zones" asp-action="Create" asp-route-farmId="@Model.FarmId" class="btn btn-sm btn-primary">Add Zone</a>
+            </div>
+            <div class="card-body">
+                @if (Model.Zones.Any())
+                {
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Area</th>
+                                <th>Status</th>
+                                <th>Supervisor</th>
+                                <th>Alerts</th>
+                                <th>Tasks</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var zone in Model.Zones)
+                            {
+                                <tr>
+                                    <td>@zone.ZoneName</td>
+                                    <td>@zone.ZoneArea.ToString("N2")</td>
+                                    <td>
+                                        <span class="badge @(zone.ZoneStatus == "Planted" ? "bg-success" : zone.ZoneStatus == "Available" ? "bg-info" : "bg-secondary")">
+                                            @zone.ZoneStatus
+                                        </span>
+                                    </td>
+                                    <td>@(zone.SupervisorName ?? "Not assigned")</td>
+                                    <td>
+                                        @if (zone.OpenAlertsCount > 0)
+                                        {
+                                            <span class="badge bg-warning">@zone.OpenAlertsCount</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">0</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (zone.OpenTasksCount > 0)
+                                        {
+                                            <span class="badge bg-danger">@zone.OpenTasksCount</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">0</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a asp-controller="Dashboard" asp-action="ZoneDashboard" asp-route-zoneId="@zone.ZoneId" class="btn btn-sm btn-outline-info">Dashboard</a>
+                                        <a asp-controller="Zones" asp-action="Details" asp-route-id="@zone.ZoneId" class="btn btn-sm btn-outline-secondary">Details</a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">No zones created yet. <a asp-controller="Zones" asp-action="Create" asp-route-farmId="@Model.FarmId">Create your first zone</a>.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Recent Alerts</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.RecentAlerts.Any())
+                {
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Zone</th>
+                                <th>Type</th>
+                                <th>Severity</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var alert in Model.RecentAlerts)
+                            {
+                                <tr>
+                                    <td>@alert.ZoneName</td>
+                                    <td>@alert.AlertType</td>
+                                    <td>
+                                        <span class="badge @(alert.AlertSeverity == "Critical" ? "bg-danger" : alert.AlertSeverity == "High" ? "bg-warning" : alert.AlertSeverity == "Medium" ? "bg-info" : "bg-secondary")">
+                                            @alert.AlertSeverity
+                                        </span>
+                                    </td>
+                                    <td>@alert.AlertStatus</td>
+                                    <td>@alert.FiringDate.ToString("g")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">No alerts</p>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5>Urgent Tasks</h5>
+            </div>
+            <div class="card-body">
+                @if (Model.UrgentTasks.Any())
+                {
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th>Zone</th>
+                                <th>Task</th>
+                                <th>Status</th>
+                                <th>Due</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var task in Model.UrgentTasks)
+                            {
+                                <tr>
+                                    <td>@task.ZoneName</td>
+                                    <td>@task.TaskName</td>
+                                    <td>@task.TaskStatus</td>
+                                    <td>@task.DueDate.ToString("d")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">No urgent tasks</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
