@@ -11,6 +11,7 @@ using ZoneSync.Core.Entities.Sensors;
 using ZoneSync.Core.Entities.StageRequirementModule;
 using ZoneSync.Core.Entities.StageInformationModule;
 using ZoneSync.Core.Enums;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace ZoneSync.Core.Data
 {
