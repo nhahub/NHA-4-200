@@ -1,8 +1,77 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using Microsoft.AspNetCore.Identity
+@using ZoneSync.Core.Entities.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center py-5">
+    <h1 class="display-4">Welcome to ZoneSync</h1>
+    <p class="lead text-muted">Smart Farm Management System</p>
+    <hr class="my-4" />
+    <p>Manage your farms, zones, crops, sensors, alerts, and tasks all in one place.</p>
 </div>
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-house-door"></i> Farms</h5>
+                    <p class="card-text text-muted">Create and manage your farms</p>
+                    <a asp-controller="Farms" asp-action="Create" class="btn btn-primary">Create Farm</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-grid-3x3"></i> Crop Plans</h5>
+                    <p class="card-text text-muted">Plan and track your crops</p>
+                    <a asp-controller="CropPlans" asp-action="Create" class="btn btn-success">Create Crop Plan</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-cpu"></i> Sensors</h5>
+                    <p class="card-text text-muted">Configure sensors and view readings</p>
+                    <a asp-controller="SensorReadings" asp-action="Index" class="btn btn-info text-white">View Readings</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-exclamation-triangle"></i> Alerts</h5>
+                    <p class="card-text text-muted">Monitor and respond to alerts</p>
+                    <p class="text-muted small">Navigate to a zone to view its alerts</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card text-center h-100">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-checklist"></i> Tasks</h5>
+                    <p class="card-text text-muted">Manage tasks and action logs</p>
+                    <p class="text-muted small">Navigate to a zone to view its tasks</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center">
+        <p class="lead">Get started by registering as a farm owner or logging in.</p>
+        <div class="mt-4">
+            <a asp-controller="Account" asp-action="RegisterOwner" class="btn btn-primary btn-lg mx-2">Register</a>
+            <a asp-controller="Account" asp-action="Login" class="btn btn-outline-primary btn-lg mx-2">Login</a>
+        </div>
+    </div>
+}
