@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ZoneSync.Service.Contracts;
 using ZoneSync.Web.Models;
 
 namespace ZoneSync.Web.Controllers
 {
+    [Authorize]
     public class AlertsController : Controller
     {
         private readonly IAlertService _alertService;

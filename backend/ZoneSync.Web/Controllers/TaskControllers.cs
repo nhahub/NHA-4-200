@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ZoneSync.Service.Contracts;
 using ZoneSync.Web.Models;
 
 namespace ZoneSync.Web.Controllers
 {
+    [Authorize]
     public class TasksController : Controller
     {
         private readonly ITaskService _taskService;

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ZoneSync.Core.Data;
@@ -5,6 +6,7 @@ using ZoneSync.Core.Entities.CropModule;
 
 namespace ZoneSync.Web.Controllers
 {
+    [Authorize]
     public class CropsController : Controller
     {
         private readonly ApplicationDbContext _context;
