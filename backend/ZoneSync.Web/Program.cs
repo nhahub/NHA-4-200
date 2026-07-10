@@ -62,5 +62,17 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+app.MapControllerRoute(
+    name: "dashboard",
+    pattern: "Dashboard/{action=FarmDashboard}/{id?}",
+    defaults: new { controller = "Dashboard" })
+    .WithStaticAssets();
+
+// Seed demo data on startup in development
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    await ZoneSync.Core.Data.SeedData.InitializeAsync(app.Services);
+}
 
 app.Run();

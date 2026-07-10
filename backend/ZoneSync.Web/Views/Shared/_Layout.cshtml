@@ -23,35 +23,37 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">Farms & Zones</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Farms" asp-action="Create">Create Farm</a></li>
+                                <li><a class="dropdown-item" asp-controller="Zones" asp-action="Create" asp-route-farmId="0">Create Zone</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">Crops</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="Crops" asp-action="Index">Crops</a></li>
+                                <li><a class="dropdown-item" asp-controller="CropPlans" asp-action="Index">Crop Plans</a></li>
+                                <li><a class="dropdown-item" asp-controller="GrowthStages" asp-action="Create">Growth Stages</a></li>
+                                <li><a class="dropdown-item" asp-controller="StageRequirements" asp-action="Create">Stage Requirements</a></li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle text-dark" href="#" role="button" data-bs-toggle="dropdown">Sensors</a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" asp-controller="SensorModels" asp-action="Index">Sensor Models</a></li>
+                                <li><a class="dropdown-item" asp-controller="SensorInstances" asp-action="Index">Sensor Instances</a></li>
+                                <li><a class="dropdown-item" asp-controller="ZoneConfigurations" asp-action="Index">Configurations</a></li>
+                                <li><a class="dropdown-item" asp-controller="SensorReadings" asp-action="Index">Readings</a></li>
+                                <li><a class="dropdown-item" asp-controller="MeasurementTypes" asp-action="Index">Measurement Types</a></li>
+                            </ul>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Crops" asp-action="Index">Crops</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="CreateInvitation">Invite</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="CropPlans" asp-action="Index">Crop Plans</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="MeasurementTypes" asp-action="Index">Measurement Types</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="SensorModels" asp-action="Index">Sensor Models</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="SensorInstances" asp-action="Index">Sensors</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="ZoneConfigurations" asp-action="Index">Configurations</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="SensorReadings" asp-action="Index">Readings</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="CreateInvitation">Invite User</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="AcceptInvitation">Accept Invitation</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Account" asp-action="AcceptInvitation">Accept Invite</a>
                         </li>
                     </ul>
                     <ul class="navbar-nav">
