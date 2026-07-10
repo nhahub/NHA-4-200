@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using ZoneSync.Web.ViewModels.Sensors;
 
 namespace ZoneSync.Web.Controllers
 {
+    [Authorize]
     public class SensorInstancesController : Controller
     {
         private readonly ApplicationDbContext _context;

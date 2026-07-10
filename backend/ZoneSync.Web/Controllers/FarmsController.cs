@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using ZoneSync.Core.Entities.Identity;
 using ZoneSync.Service.Contracts;
 using ZoneSync.Web.ViewModels.FarmZone;
@@ -17,6 +18,20 @@ namespace ZoneSync.Web.Controllers
         {
             this.farmZoneService = farmZoneService;
             this.userManager = userManager;
+        }
+
+        // Checks whether the currently logged-in user is a member (owner/engineer/farmer)
+        // of the given farm. Used to stop a logged-in user from viewing or modifying
+        // a farm they don't belong to (IDOR protection).
+        private async Task<bool> IsCurrentUserMemberOfFarmAsync(int farmId)
+        {
+            var aspNetUserId = userManager.GetUserId(User);
+            if (aspNetUserId is null) return false;
+
+            var currentUserId = await farmZoneService.GetUserProfileIdAsync(aspNetUserId);
+            var members = await farmZoneService.GetFarmMembersAsync(farmId);
+
+            return members.Any(m => m.UserId == currentUserId);
         }
 
         public IActionResult Create()
@@ -54,6 +69,11 @@ namespace ZoneSync.Web.Controllers
                 return NotFound();
             }
 
+            if (!await IsCurrentUserMemberOfFarmAsync(id))
+            {
+                return Forbid();
+            }
+
             var model = new EditFarmViewModel
             {
                 FarmId = farm.FarmId,
@@ -74,11 +94,24 @@ namespace ZoneSync.Web.Controllers
                 return View(model);
             }
 
-            await farmZoneService.UpdateFarmAsync(
-                model.FarmId,
-                model.FarmName,
-                model.FarmLocation,
-                model.SoilType);
+            if (!await IsCurrentUserMemberOfFarmAsync(model.FarmId))
+            {
+                return Forbid();
+            }
+
+            try
+            {
+                await farmZoneService.UpdateFarmAsync(
+                    model.FarmId,
+                    model.FarmName,
+                    model.FarmLocation,
+                    model.SoilType);
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return View(model);
+            }
 
             return RedirectToAction(nameof(Details), new { id = model.FarmId });
         }
@@ -92,6 +125,11 @@ namespace ZoneSync.Web.Controllers
                 return NotFound();
             }
 
+            if (!await IsCurrentUserMemberOfFarmAsync(id))
+            {
+                return Forbid();
+            }
+
             var zones = await farmZoneService.GetActiveZonesForFarmAsync(id);
 
             ViewBag.Zones = zones;
@@ -103,11 +141,23 @@ namespace ZoneSync.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDelete(int id)
         {
-            await farmZoneService.SoftDeleteFarmAsync(id);
+            if (!await IsCurrentUserMemberOfFarmAsync(id))
+            {
+                return Forbid();
+            }
 
-            TempData["SuccessMessage"] = "Farm deleted successfully";
+            try
+            {
+                await farmZoneService.SoftDeleteFarmAsync(id);
+                TempData["SuccessMessage"] = "Farm deleted successfully";
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
 
             return RedirectToAction("Index", "Home");
+            
         }
     }
 }

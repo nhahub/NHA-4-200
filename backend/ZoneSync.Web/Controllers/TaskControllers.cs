@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ZoneSync.Service.Contracts;
 using ZoneSync.Web.Models;
 
 namespace ZoneSync.Web.Controllers
 {
+    [Authorize]
     public class TasksController : Controller
     {
         private readonly ITaskService _taskService;
@@ -54,11 +56,18 @@ namespace ZoneSync.Web.Controllers
         {
             if (!ModelState.IsValid) return View(vm);
 
-            var task = await _taskService.CreateFromAlertAsync(
-                vm.AlertId, vm.TaskName, vm.TaskDesc, vm.DueDate,
-                vm.CreatedByUserId, vm.ActualVerificationAfterHours);
+            try
+            {
+                var task = await _taskService.CreateFromAlertAsync(
+                    vm.AlertId, vm.TaskName, vm.TaskDesc, vm.DueDate,
+                    vm.CreatedByUserId, vm.ActualVerificationAfterHours);
 
-            return RedirectToAction(nameof(Details), new { id = task.TaskId });
+                return RedirectToAction(nameof(Details), new { id = task.TaskId });
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
         }
 
         // GET: /Tasks/CreateManual?zoneId=5
@@ -92,16 +101,32 @@ namespace ZoneSync.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Start(int id)
         {
-            await _taskService.StartTaskAsync(id);
+            try
+            {
+                await _taskService.StartTaskAsync(id);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+
             return RedirectToAction(nameof(Details), new { id });
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddActionLog(int taskId, int executedByUserId,
-            string? quantityType, string? quantityDesc, string? result, string? notes)
+    string? quantityType, string? quantityDesc, string? result, string? notes)
         {
-            await _taskService.AddActionLogAsync(taskId, executedByUserId, quantityType, quantityDesc, result, notes);
+            try
+            {
+                await _taskService.AddActionLogAsync(taskId, executedByUserId, quantityType, quantityDesc, result, notes);
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+
             return RedirectToAction(nameof(Details), new { id = taskId });
         }
 
@@ -109,7 +134,15 @@ namespace ZoneSync.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Complete(int id)
         {
-            await _taskService.CompleteTaskAsync(id);
+            try
+            {
+                await _taskService.CompleteTaskAsync(id);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+
             return RedirectToAction(nameof(Details), new { id });
         }
 
@@ -117,7 +150,15 @@ namespace ZoneSync.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Fail(int id)
         {
-            await _taskService.FailTaskAsync(id);
+            try
+            {
+                await _taskService.FailTaskAsync(id);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+
             return RedirectToAction(nameof(Details), new { id });
         }
 
@@ -125,7 +166,15 @@ namespace ZoneSync.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Skip(int id)
         {
-            await _taskService.SkipTaskAsync(id);
+            try
+            {
+                await _taskService.SkipTaskAsync(id);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+
             return RedirectToAction(nameof(Details), new { id });
         }
     }
