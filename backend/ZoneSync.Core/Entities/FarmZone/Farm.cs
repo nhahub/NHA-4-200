@@ -10,11 +10,11 @@ namespace ZoneSync.Core.Entities.FarmZone
         public int FarmId { get; set; }
 
         public int OwnerUserId { get; set; }
-        public UserProfile OwnerUser { get; set; }
+        public UserProfile OwnerUser { get; set; } = null!;
 
-        public string FarmName { get; set; }
-        public string FarmLocation { get; set; }
-        public string SoilType { get; set; }
+        public required string FarmName { get; set; }
+        public required string FarmLocation { get; set; } = null!;
+        public required string SoilType { get; set; } = null!;
 
         public decimal TotalArea { get; set; }
         public int NoOfZones { get; set; }
