@@ -74,11 +74,19 @@ namespace ZoneSync.Web.Controllers
                 return View(model);
             }
 
-            await farmZoneService.UpdateFarmAsync(
-                model.FarmId,
-                model.FarmName,
-                model.FarmLocation,
-                model.SoilType);
+            try
+            {
+                await farmZoneService.UpdateFarmAsync(
+                    model.FarmId,
+                    model.FarmName,
+                    model.FarmLocation,
+                    model.SoilType);
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return View(model);
+            }
 
             return RedirectToAction(nameof(Details), new { id = model.FarmId });
         }
@@ -103,11 +111,18 @@ namespace ZoneSync.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SoftDelete(int id)
         {
-            await farmZoneService.SoftDeleteFarmAsync(id);
-
-            TempData["SuccessMessage"] = "Farm deleted successfully";
+            try
+            {
+                await farmZoneService.SoftDeleteFarmAsync(id);
+                TempData["SuccessMessage"] = "Farm deleted successfully";
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
 
             return RedirectToAction("Index", "Home");
+           
         }
     }
 }

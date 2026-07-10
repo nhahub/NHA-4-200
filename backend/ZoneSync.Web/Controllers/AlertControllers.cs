@@ -57,7 +57,15 @@ namespace ZoneSync.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Confirm(int id, int confirmedByUserId)
         {
-            await _alertService.ConfirmAsync(id, confirmedByUserId);
+            try
+            {
+                await _alertService.ConfirmAsync(id, confirmedByUserId);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+
             return RedirectToAction(nameof(Details), new { id });
         }
 
@@ -65,7 +73,15 @@ namespace ZoneSync.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Discard(int id, int confirmedByUserId)
         {
-            await _alertService.DiscardAsync(id, confirmedByUserId);
+            try
+            {
+                await _alertService.DiscardAsync(id, confirmedByUserId);
+            }
+            catch (KeyNotFoundException)
+            {
+                return NotFound();
+            }
+
             return RedirectToAction(nameof(Details), new { id });
         }
     }

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using ZoneSync.Core.Entities.Identity;
+using ZoneSync.Core.Entities.FarmZone;
 using ZoneSync.Service.Contracts;
 using ZoneSync.Web.ViewModels.FarmZone;
 
@@ -39,27 +40,48 @@ namespace ZoneSync.Web.Controllers
             }
 
             var aspNetUserId = userManager.GetUserId(User);
-            var createdByUserId = await farmZoneService.GetUserProfileIdAsync(aspNetUserId!);
 
-            var zone = await farmZoneService.CreateZoneAsync(
-                model.FarmId,
-                model.ZoneName,
-                model.ZoneArea,
-                createdByUserId);
+            int createdByUserId;
+            Zone zone;
 
-            foreach (var userId in model.AssignedUserIds)
+            try
             {
-                await farmZoneService.AssignUserToZoneAsync(zone.ZoneId, userId);
+                createdByUserId = await farmZoneService.GetUserProfileIdAsync(aspNetUserId!);
+
+                zone = await farmZoneService.CreateZoneAsync(
+                    model.FarmId,
+                    model.ZoneName,
+                    model.ZoneArea,
+                    createdByUserId);
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                ViewBag.FarmMembers = await farmZoneService.GetFarmMembersAsync(model.FarmId);
+                return View(model);
             }
 
-            if (model.SupervisorUserId.HasValue)
+            // Zone is created at this point — if assignment/supervisor steps fail,
+            // redirect to the zone instead of losing it.
+            try
             {
-                await farmZoneService.SetZoneSupervisorAsync(zone.ZoneId, model.SupervisorUserId.Value);
+                foreach (var userId in model.AssignedUserIds)
+                {
+                    await farmZoneService.AssignUserToZoneAsync(zone.ZoneId, userId);
+                }
+
+                if (model.SupervisorUserId.HasValue)
+                {
+                    await farmZoneService.SetZoneSupervisorAsync(zone.ZoneId, model.SupervisorUserId.Value);
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = $"Zone created, but: {ex.Message}";
             }
 
             return RedirectToAction(nameof(Details), new { id = zone.ZoneId });
         }
-
         public async Task<IActionResult> Edit(int id)
         {
             var zone = await farmZoneService.GetZoneAsync(id);
@@ -89,15 +111,22 @@ namespace ZoneSync.Web.Controllers
                 return View(model);
             }
 
-            await farmZoneService.UpdateZoneAsync(
-                model.ZoneId,
-                model.ZoneName,
-                model.ZoneArea,
-                model.ZoneStatus);
+            try
+            {
+                await farmZoneService.UpdateZoneAsync(
+                    model.ZoneId,
+                    model.ZoneName,
+                    model.ZoneArea,
+                    model.ZoneStatus);
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return View(model);
+            }
 
             return RedirectToAction(nameof(Details), new { id = model.ZoneId });
         }
-
         public async Task<IActionResult> Details(int id)
         {
             var zone = await farmZoneService.GetZoneAsync(id);
@@ -129,7 +158,14 @@ namespace ZoneSync.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignUser(int zoneId, int userId)
         {
-            await farmZoneService.AssignUserToZoneAsync(zoneId, userId);
+            try
+            {
+                await farmZoneService.AssignUserToZoneAsync(zoneId, userId);
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
 
             return RedirectToAction(nameof(Details), new { id = zoneId });
         }
@@ -156,9 +192,15 @@ namespace ZoneSync.Web.Controllers
         {
             var zone = await farmZoneService.GetZoneAsync(id);
 
-            await farmZoneService.SoftDeleteZoneAsync(id);
-
-            TempData["SuccessMessage"] = "Zone deleted successfully";
+            try
+            {
+                await farmZoneService.SoftDeleteZoneAsync(id);
+                TempData["SuccessMessage"] = "Zone deleted successfully";
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
 
             return RedirectToAction("Details", "Farms", new { id = zone?.FarmId });
         }
