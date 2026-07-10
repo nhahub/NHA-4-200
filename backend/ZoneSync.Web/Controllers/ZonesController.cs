@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 using ZoneSync.Core.Entities.Identity;
 using ZoneSync.Core.Entities.FarmZone;
 using ZoneSync.Service.Contracts;
@@ -20,8 +21,38 @@ namespace ZoneSync.Web.Controllers
             this.userManager = userManager;
         }
 
+        // Checks whether the currently logged-in user is a member of the given farm.
+        // Used to stop a logged-in user from viewing or modifying a zone belonging
+        // to a farm they don't belong to (IDOR protection).
+        private async Task<bool> IsCurrentUserMemberOfFarmAsync(int farmId)
+        {
+            var aspNetUserId = userManager.GetUserId(User);
+            if (aspNetUserId is null) return false;
+
+            var currentUserId = await farmZoneService.GetUserProfileIdAsync(aspNetUserId);
+            var members = await farmZoneService.GetFarmMembersAsync(farmId);
+
+            return members.Any(m => m.UserId == currentUserId);
+        }
+
+        // Same check, but starting from a zoneId — resolves the zone's parent farm first.
+        // Returns null if the zone itself doesn't exist, so callers can tell "not found"
+        // apart from "found but not a member".
+        private async Task<bool?> IsCurrentUserMemberOfZoneAsync(int zoneId)
+        {
+            var zone = await farmZoneService.GetZoneAsync(zoneId);
+            if (zone is null) return null;
+
+            return await IsCurrentUserMemberOfFarmAsync(zone.FarmId);
+        }
+
         public async Task<IActionResult> Create(int farmId)
         {
+            if (!await IsCurrentUserMemberOfFarmAsync(farmId))
+            {
+                return Forbid();
+            }
+
             var model = new CreateZoneViewModel { FarmId = farmId };
 
             ViewBag.FarmMembers = await farmZoneService.GetFarmMembersAsync(farmId);
@@ -33,6 +64,11 @@ namespace ZoneSync.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateZoneViewModel model)
         {
+            if (!await IsCurrentUserMemberOfFarmAsync(model.FarmId))
+            {
+                return Forbid();
+            }
+
             if (!ModelState.IsValid)
             {
                 ViewBag.FarmMembers = await farmZoneService.GetFarmMembersAsync(model.FarmId);
@@ -91,6 +127,11 @@ namespace ZoneSync.Web.Controllers
                 return NotFound();
             }
 
+            if (!await IsCurrentUserMemberOfFarmAsync(zone.FarmId))
+            {
+                return Forbid();
+            }
+
             var model = new EditZoneViewModel
             {
                 ZoneId = zone.ZoneId,
@@ -109,6 +150,16 @@ namespace ZoneSync.Web.Controllers
             if (!ModelState.IsValid)
             {
                 return View(model);
+            }
+
+            var isMember = await IsCurrentUserMemberOfZoneAsync(model.ZoneId);
+            if (isMember is null)
+            {
+                return NotFound();
+            }
+            if (isMember == false)
+            {
+                return Forbid();
             }
 
             try
@@ -136,6 +187,11 @@ namespace ZoneSync.Web.Controllers
                 return NotFound();
             }
 
+            if (!await IsCurrentUserMemberOfFarmAsync(zone.FarmId))
+            {
+                return Forbid();
+            }
+
             var model = new ZoneDetailsViewModel
             {
                 ZoneId = zone.ZoneId,
@@ -158,6 +214,16 @@ namespace ZoneSync.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AssignUser(int zoneId, int userId)
         {
+            var isMember = await IsCurrentUserMemberOfZoneAsync(zoneId);
+            if (isMember is null)
+            {
+                return NotFound();
+            }
+            if (isMember == false)
+            {
+                return Forbid();
+            }
+
             try
             {
                 await farmZoneService.AssignUserToZoneAsync(zoneId, userId);
@@ -174,6 +240,16 @@ namespace ZoneSync.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SetSupervisor(int zoneId, int supervisorUserId)
         {
+            var isMember = await IsCurrentUserMemberOfZoneAsync(zoneId);
+            if (isMember is null)
+            {
+                return NotFound();
+            }
+            if (isMember == false)
+            {
+                return Forbid();
+            }
+
             try
             {
                 await farmZoneService.SetZoneSupervisorAsync(zoneId, supervisorUserId);
@@ -191,6 +267,16 @@ namespace ZoneSync.Web.Controllers
         public async Task<IActionResult> SoftDelete(int id)
         {
             var zone = await farmZoneService.GetZoneAsync(id);
+
+            if (zone is null)
+            {
+                return NotFound();
+            }
+
+            if (!await IsCurrentUserMemberOfFarmAsync(zone.FarmId))
+            {
+                return Forbid();
+            }
 
             try
             {
